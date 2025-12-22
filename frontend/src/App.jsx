@@ -6,13 +6,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./Context/Auth.context";
 
 //routes
-import privateRoute from "./Routes/PrivateRoute";
-import publicRoute from "./Routes/PublicRoute";
+import PrivateRoute from "./Routes/PrivateRoute";
+import PublicRoute from "./Routes/PublicRoute";
 
 //pages
 import Login from "./pages/Login";
 import Board from "./pages/Board";
-import notFound from "./pages/notFound";
+import NotFound from "./pages/NotFound";
 import Signup from "./pages/Signup";
 
 function App() {
@@ -26,9 +26,9 @@ function App() {
           <Route
           path="/login"
           element= {
-            <publicRoute>
+            <PublicRoute>
               <Login/>
-            </publicRoute>
+            </PublicRoute>
           }
           />
 
@@ -45,7 +45,7 @@ function App() {
 
           <Route
           path="*"
-          element= {<notFound/>}
+          element= {<NotFound/>}
           />
         </Routes>
       </BrowserRouter>

@@ -1,5 +1,13 @@
+/**
+Render login UI
+Take email/password input
+Call login() from AuthContext
+Handle redirect to /boards
+ */
 import React, { useState } from "react";
 import { useAuth } from "../Context/Auth.context";
+import {useNavigate} from "react-router-dom"
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -7,24 +15,22 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
+  const navigate=useNavigate()
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "/api/v1/user/login",
-        { email: email, password: password },
-        { withCredentials: true }
-      );
-      console.log("Login success:", res.data);
-      const user = res.data.data.user;
-      login(user);
-
+      await login({ email, password });
     } catch (error) {
       console.log("Login error", error.response?.data?.message);
     }
+    finally{
+      setLoading(false);
+    }
   };
 
-  return (
+
+  return ( //  Render login UI
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
         {/* Heading */}
@@ -35,10 +41,7 @@ const Login = () => {
           {/* error message goes here */}
         </div>
 
-        {/* Login Form */}
-        <form className="space-y-4"
-        onSubmit={onSubmitHandler}
-        >
+        <form className="space-y-4" onSubmit={onSubmitHandler}>
           <div>
             <label className="block text-sm font-medium mb-1">Email</label>
             <input
@@ -65,9 +68,7 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
-            Login
-          </button>
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Login</button>
         </form>
 
         <div className="flex items-center my-4">
@@ -76,14 +77,26 @@ const Login = () => {
           <div className="grow h-px bg-gray-300" />
         </div>
 
-        <button className="w-full border py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-50">
-          Login with Google
+        <button
+        onClick={() => {
+          window.location.href = //http://localhost:3000/auth/google
+            import.meta.env.VITE_API_BASE_URL + "/auth/google";
+        }}
+        // 1️⃣ Browser → Backend /auth/google
+        // 2️⃣ Backend → Google OAuth page
+        // 3️⃣ User logs in
+        // 4️⃣ Google → Backend callback
+        // 5️⃣ Backend sets cookie + redirects
+        // 6️⃣ Backend → http://localhost:5173/boards
+        className="w-full border py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-50">
         </button>
 
         {/* Signup redirect */}
         <p className="text-sm text-center mt-4">
           Don't have an account?{" "}
-          <span className="text-blue-600 cursor-pointer">Sign up</span>
+          <span 
+          onClick={() => navigate("/signup")}
+          className="text-blue-600 cursor-pointer">Sign up</span>
         </p>
       </div>
     </div>
