@@ -4,7 +4,7 @@ export const getAllBoardsApi= ()=>{
     return api.get("/board//getallboards");
 };
 
-export const getBoardByApi= (boardId)=>{
+export const getBoardByIdApi= (boardId)=>{
     return api.get(`/board/${boardId}`);
 };
 

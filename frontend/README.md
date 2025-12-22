@@ -67,6 +67,12 @@ src/
 
 
 
+| User intent                    | File                       |
+| ------------------------------ | -------------------------- |
+| “Show me all my boards”        | `pages/Boards.jsx`         |
+| “I want to create a new board” | `pages/CreateBoard.jsx`    |
+| “Show me one board in detail”  | `pages/Board.jsx`          |
+| “Show one board card visually” | `components/BoardCard.jsx` |
 
 
 
