@@ -19,8 +19,11 @@ const Login = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
       await login({ email, password });
+      navigate('/boards')
     } catch (error) {
       console.log("Login error", error.response?.data?.message);
     }

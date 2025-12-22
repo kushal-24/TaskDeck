@@ -1,11 +1,11 @@
-import api from "./axios";
+ import api from "./axios";
 
 /**
  * Login user
  * @param {Object} data { email, password }
  */
 export const loginApi = (data) => {
-  return api.post("/auth/login", data);
+  return api.post("/user/login", data);
 };
 
 /**
@@ -13,19 +13,19 @@ export const loginApi = (data) => {
  * @param {Object} data { name, email, password }
  */
 export const signupApi = (data) => {
-  return api.post("/auth/signup", data);
+  return api.post("/user/signup", data);
 };
 
 /**
  * Logout user
  */
-export const logoutApi = () => {
-  return api.post("/auth/logout");
+export const logoutApi = (userId) => {
+  return api.post("/user/logout");
 };
 
 /**
  * Get currently logged-in user
  */
 export const getMeApi = () => {
-  return api.get("/auth/me");
+  return api.get("/user/myprofile");
 };
