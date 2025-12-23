@@ -1,7 +1,7 @@
 import api from "./axios";
 
 export const getAllBoardsApi= ()=>{
-    return api.get("/board//getallboards");
+    return api.get("/board/getallboards");
 };
 
 export const getBoardByIdApi= (boardId)=>{

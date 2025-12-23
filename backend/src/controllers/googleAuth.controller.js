@@ -14,20 +14,13 @@ export const googleCallBack=asyncHandler(async(req,res,next)=>{
     const options= {
         httpOnly: true,
         secure: false,
+        sameSite: "lax",
     }
 
     return res
-    .status(201)
+    .status(302)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .json(
-        new apiResponse(
-            {
-                loggedInUser,
-            },
-            200,
-            "Logged in with Google successfully"
-        )
-    )
+    .redirect("http://localhost:5173/boards");
 })
 

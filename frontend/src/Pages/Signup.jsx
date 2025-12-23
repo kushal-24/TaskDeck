@@ -22,12 +22,11 @@ const Signup = () => {
 
     try {
       await signupApi({
-        name: fullName,
+        fullName,
         email,
         password,
       });
 
-      // signup does NOT log user in → redirect to login
       navigate("/login");
     } catch (error) {
       console.log("Signup error:", error.response?.data?.message);

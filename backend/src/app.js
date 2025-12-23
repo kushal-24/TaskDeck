@@ -9,12 +9,13 @@ import googleAuthRoutes from "./routes/googleAuth.routes.js";
 
 const app=express();
 
-app.use("/auth",googleAuthRoutes)
-app.use(passport.initialize());
 app.use(cors({
     origin: process.env.CORS_ORIGIN, //👉 “Allow this frontend to access my backend and allow cookies.”
     credentials: true,
 }))
+
+app.use("/auth",googleAuthRoutes)
+app.use(passport.initialize());
 app.use(express.json({limit: "16kb"}));
 app.use(express.urlencoded({extended: true, limit:"16kb"}));
 app.use(express.static("public"))

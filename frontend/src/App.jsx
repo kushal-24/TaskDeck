@@ -3,26 +3,36 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./Context/Auth.context";
+import { AuthProvider } from "./Context/Auth.context.jsx";
 
 //routes
 import PrivateRoute from "./Routes/PrivateRoute";
 import PublicRoute from "./Routes/PublicRoute";
 
 //pages
-import Login from "./pages/Login";
-import Board from "./pages/Board";
-import NotFound from "./pages/NotFound";
-import Signup from "./pages/Signup";
+import Login from "./Pages/Login.jsx";
+import Board from "./Pages/Board.jsx";
+import Boards from "./Pages/Boards.jsx"
+import NotFound from "./Pages/NotFound.jsx";
+import Signup from "./Pages/Signup.jsx";
+import WelcomePg from "./Pages/WelcomePg.jsx";
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
+          <Route
+          path="/"
+          element= {
+            <PublicRoute>
+              <WelcomePg/>
+            </PublicRoute>
+          }
+          />
+
           <Route
           path="/login"
           element= {
@@ -31,14 +41,30 @@ function App() {
             </PublicRoute>
           }
           />
+          <Route
+          path="/signup"
+          element= {
+            <PublicRoute>
+              <Signup/>
+            </PublicRoute>
+          }
+          />
 
           {/* Private routes */}
           <Route
           path="/board"
           element= {
-            <privateRoute>
+            <PrivateRoute>
               <Board/>
-            </privateRoute>
+            </PrivateRoute>
+          }
+          />
+          <Route
+          path="/boards"
+          element= {
+            <PrivateRoute>
+              <Boards/>
+            </PrivateRoute>
           }
           />
 

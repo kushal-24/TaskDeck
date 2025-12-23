@@ -1,60 +1,75 @@
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams } from "react-router-dom";
-import ListContainer from '../Components/ListContainer';
+import api from "../Api/axios";
+import { getBoardByIdApi } from "../Api/board.api.js";
+import { getListApi } from "../Api/list.api.js";
+import { getTaskApi } from "../Api/task.api.js";
 
 function Board() {
+  const [board, setBoard] = useState(null);
+  const [lists, setLists] = useState([]);
+  const [tasksByList, setTasksByList] = useState({});
   const { boardId } = useParams();
 
-  const [board, setBoard] = useState(null);
-  const [list, setList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
+  //fetching the board details
   useEffect(() => {
-    const fetchBoardData = async () => {
+    const fetchBLT = async () => {
       try {
-        const boardRes = await axios.get(
-          `/api/v1/board/${boardId}/viewboard`,
-          { withCredentials: true }
-        );
+        //fetch board data
+        const resBoard = await getBoardByIdApi(boardId);
+        setBoard(resBoard.data.data);
 
-        const listRes = await axios.get(
-          `/api/v1/board/${boardId}/lists`,
-          { withCredentials: true }
-        );
+        //fetch list data
+        const resLists = await getListApi(boardId);
+        const listsData = resLists.data.data;
+        setLists(listsData);
 
-        setBoard(boardRes.data.data);
-        setList(listRes.data.data);
-      } catch (err) {
-        console.log("Error fetching board or lists", err);
-        setError("Failed to load board");
-      } finally {
-        setLoading(false);
+        //fetch tasks from listId
+        const taskMap = {};
+
+        await Promise.all(
+          listsData.map(async (list) => {
+            const resTasks = await getTaskApi(list._id);
+            taskMap[list._id] = resTasks.data.data;
+          })
+        );
+        setTasksByList(taskMap);
+      } catch (error) {
+        console.error("Error loading board page", error);
       }
     };
-
-    fetchBoardData();
+    fetchBLT();
   }, [boardId]);
 
-  if (loading) return <p>Loading board...</p>;
-  if (error) return <p>{error}</p>;
-
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">{board.title}</h1>
-      <p className="text-gray-600">{board.description}</p>
+    <div style={{ padding: "16px" }}>
+      {/* Board info */}
+      <h2>Board</h2>
+      <p>
+        <b>Title:</b> {board?.title}
+      </p>
+      <p>
+        <b>Description:</b> {board?.description}
+      </p>
 
-      <hr className="my-4" />
+      <hr />
 
-      <h2 className="text-lg font-semibold">Lists</h2>
+      {/* Lists and Tasks */}
+      <h3>Lists</h3>
 
-      <ListContainer list={list} />
+      {lists.map((list) => (
+        <div key={list._id} style={{ marginBottom: "16px" }}>
+          <h4>List: {list.title}</h4>
+
+          <ul>
+            {(tasksByList[list._id] || []).map((task) => (
+              <li key={task._id}>{task.title}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   );
 }
 
-export default Board
+export default Board;

@@ -24,7 +24,8 @@ const Boards = () => {
     const fetchBoards = async () => {
       try {
         const res = await getAllBoardsApi();
-        setBoards(res.data?.data || []);
+        console.log(res.data.data);
+        setBoards(res.data.data || []);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch boards");
       } finally {

@@ -25,7 +25,7 @@ const Login = () => {
       await login({ email, password });
       navigate('/boards')
     } catch (error) {
-      console.log("Login error", error.response?.data?.message);
+      throw error; 
     }
     finally{
       setLoading(false);
@@ -83,7 +83,7 @@ const Login = () => {
         <button
         onClick={() => {
           window.location.href = //http://localhost:3000/auth/google
-            import.meta.env.VITE_API_BASE_URL + "/auth/google";
+            import.meta.env.VITE_API_AUTH_URL + "/auth/google";
         }}
         // 1️⃣ Browser → Backend /auth/google
         // 2️⃣ Backend → Google OAuth page

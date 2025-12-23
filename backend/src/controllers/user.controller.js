@@ -81,7 +81,8 @@ const userLogin = asyncHandler(async (req, res, next) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: false,
+        sameSite: "lax",
     }
 
     return res
@@ -116,6 +117,7 @@ const userLogout = asyncHandler(async (req, res, next) => {
     const options = {
         httpOnly: true,
         secure: false,
+        sameSite: "lax",
     }
 
     return res
@@ -172,15 +174,15 @@ const getUserDetails= asyncHandler(async(req,res,next)=>{
     const userId= req.user?._id;
     const user= await User.findById(userId).select("-password -refreshToken");
     if(!user){
-        throw new apiError(500, "server error hogaya");
+        throw new apiError(401, "server error hogaya");
     }
 
     return res
     .status(200)
     .json(
         new apiResponse(
-            200,
             user,
+            200,
             "Admin details fetched successfully"
         )
     )

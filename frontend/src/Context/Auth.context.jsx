@@ -1,16 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
 import {loginApi, logoutApi, getMeApi} from "../Api/auth.api.js"
+
 const AuthContext = createContext(null); //esse ek storage box bana diya hai maine
 
-const AuthProvider = ({ children }) => {
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const checkAuth = async () => {
     try {
       const res = await getMeApi()
-      setUser(res.data.data.user);
+      setUser(res.data.data);
     } catch (error) {
       setUser(null);
     } finally {
@@ -22,9 +22,16 @@ const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = (userData) => {
-    setUser(userData);
-  };
+  const login= async({email,password})=>{
+    try {
+      const res= await loginApi({email,password});
+      console.log("LOGIN RESPONSE USER:", res.data.data.user);
+      setUser(res.data.data.user);
+      console.log(user);
+    } catch (error) {
+      console.log("error in logging in :", error.response?.data?.message);
+    }
+  }
 
   const logout = async () => {
     await logoutApi()

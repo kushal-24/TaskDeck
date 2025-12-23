@@ -24,7 +24,8 @@ const CreateBoard = () => {
       const res = await createBoardApi({ title, description });
 
       const newBoardId = res.data.data._id;
-      // OPTION A: go back to boards list
+      
+      //go back to boards main pg
       navigate("/boards");
     } catch (err) {
       setError("Failed to create board");

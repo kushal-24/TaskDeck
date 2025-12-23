@@ -1,4 +1,5 @@
- import api from "./axios";
+ import api from "./axios.js";
+ import axios from "axios";
 
 /**
  * Login user
@@ -19,7 +20,7 @@ export const signupApi = (data) => {
 /**
  * Logout user
  */
-export const logoutApi = (userId) => {
+export const logoutApi = () => {
   return api.post("/user/logout");
 };
 
