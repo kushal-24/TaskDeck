@@ -26,7 +26,7 @@ const taskSchema = new mongoose.Schema({
         default: "medium"
     },
     dueDate: {
-        type: String
+        type: Date,
     },
     order: {
         type: Number,

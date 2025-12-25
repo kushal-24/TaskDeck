@@ -2,8 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../Api/axios";
 import { getBoardByIdApi } from "../Api/board.api.js";
+import { createListApi } from "../Api/list.api.js";
+import {createTaskApi} from "../Api/task.api.js"
 import { getListApi } from "../Api/list.api.js";
 import { getTaskApi } from "../Api/task.api.js";
+import ListContainer from "../Components/ListContainer.jsx";
+import CreateList from "../Components/CreateList.jsx";
 
 function Board() {
   const [board, setBoard] = useState(null);
@@ -17,8 +21,7 @@ function Board() {
       try {
         //fetch board data
         const resBoard = await getBoardByIdApi(boardId);
-        setBoard(resBoard.data.data);
-
+        console.log(resBoard.data.data);
         //fetch list data
         const resLists = await getListApi(boardId);
         const listsData = resLists.data.data;
@@ -33,17 +36,57 @@ function Board() {
             taskMap[list._id] = resTasks.data.data;
           })
         );
+        ;
         setTasksByList(taskMap);
+      
+        
       } catch (error) {
         console.error("Error loading board page", error);
       }
+
     };
     fetchBLT();
   }, [boardId]);
 
+  const addList= async(title)=>{
+    if (!title.trim()) return;
+    const res = await createListApi(boardId, { title });
+    const createdList = res.data.data;
+
+
+    setLists((prev)=>[...prev, createdList]);
+    setTasksByList((prev)=>({...prev, [createdList._id]: []}))
+  }
+
+  const deleteList=(listId)=>{
+    setLists((prev)=> prev.filter((item)=> item._id !== listId ));
+    setTasksByList((prev)=>{
+      const updated={...prev}
+      delete updated[listId]
+      return updated;
+    })
+  }
+
+  const addTask=async(newTask, listId)=>{
+    const res = await createTaskApi(listId, newTask);
+    const createdTask = res.data.data;
+
+    setTasksByList((prev)=>({
+      ...prev,
+      [listId]: [...(prev[listId] || []), createdTask]
+    }))
+  }
+
+  const deleteTask=(taskId, listId)=>{
+    setTasksByList((prev)=>({
+      ...prev,
+      [listId]: prev[listId].filter((task) => task._id !== taskId),
+    }))
+  }
+
   return (
-    <div style={{ padding: "16px" }}>
-      {/* Board info */}
+    <div style={{ padding: "16px" }}> 
+      {/* Board info-- will be present like a navbar on the top*/}
       <h2>Board</h2>
       <p>
         <b>Title:</b> {board?.title}
@@ -55,19 +98,17 @@ function Board() {
       <hr />
 
       {/* Lists and Tasks */}
-      <h3>Lists</h3>
-
-      {lists.map((list) => (
-        <div key={list._id} style={{ marginBottom: "16px" }}>
-          <h4>List: {list.title}</h4>
-
-          <ul>
-            {(tasksByList[list._id] || []).map((task) => (
-              <li key={task._id}>{task.title}</li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      <h3 className="text-4xl">Lists</h3>
+      <ListContainer 
+      onCreateTask={addTask}
+      lists={lists}
+      onDeleteTask={deleteTask}
+      tasksByList={tasksByList} />
+      
+      <CreateList 
+      onCreateList={addList}
+      onDeleteList={deleteList}
+      />
     </div>
   );
 }

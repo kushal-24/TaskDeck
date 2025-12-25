@@ -2,9 +2,8 @@
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import CreateList from "../Components/createList";
 
-const Board = () => {
+const CreateList = () => {
   const { boardId } = useParams();
   const [lists, setLists] = useState([]);
 
@@ -42,4 +41,4 @@ const Board = () => {
   );
 };
 
-export default List;
+export default CreateList;

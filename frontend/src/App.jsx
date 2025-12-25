@@ -15,7 +15,7 @@ import Board from "./Pages/Board.jsx";
 import Boards from "./Pages/Boards.jsx"
 import NotFound from "./Pages/NotFound.jsx";
 import Signup from "./Pages/Signup.jsx";
-import WelcomePg from "./Pages/WelcomePg.jsx";
+import WelcomePg from "./Pages/WelcomePg.jsx"
 
 function App() {
 
@@ -52,7 +52,7 @@ function App() {
 
           {/* Private routes */}
           <Route
-          path="/board"
+          path="/boards/:boardId"
           element= {
             <PrivateRoute>
               <Board/>

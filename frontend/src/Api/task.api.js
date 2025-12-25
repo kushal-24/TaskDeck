@@ -5,7 +5,7 @@ export const createTaskApi=(listId, data)=>{
 };
 
 export const getTaskApi=(listId)=>{
-    return api.get(`/list/${listId}/gettask`);
+    return api.get(`/list/${listId}/gettasks`);
 }
 
 export const updateTask=(data, taskId)=>{

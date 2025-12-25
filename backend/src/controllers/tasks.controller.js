@@ -11,66 +11,53 @@ import {List} from "../models/list.model.js"
 import {Board} from "../models/board.model.js"
 
 
-const createTask=asyncHandler(async(req,res,next)=>{
+const createTask = asyncHandler(async (req, res) => {
     const { listId } = req.params;
-    const{title, description,priority, date,}=req.body;
-
-    //all this list,board fetching to check member permissions
-    const list=await List.findById(listId);
-    if(!list){
-        throw new apiError(400, "list not found");
+    const { title, description, priority, dueDate } = req.body;
+  
+    if (!req.user) {
+      throw new apiError(401, "Unauthorized");
     }
-
-    const board= await Board.findById(list.boardId);
-    if(!board){
-        throw new apiError(400, "board not found");
+  
+    if (!title || !description) {
+      throw new apiError(400, "Title and description are required");
     }
-
-    const userId=req.user?._id;
-    const isMember= board.members.some((memberId)=>memberId.toString()===userId.toString());
-    if(!isMember){
-        throw new apiError(403,"this user is already not a member of the board");
+  
+    const list = await List.findById(listId);
+    if (!list) {
+      throw new apiError(404, "List not found");
     }
-
-    if([title, description,priority, date].some((prev)=>prev.trim()=="")){
-        throw new apiError(400, "details are empty");
+  
+    const board = await Board.findById(list.boardId);
+    if (!board) {
+      throw new apiError(404, "Board not found");
     }
-
-    const task=await Task.create({
-        title,
-        description,
-        priority,
-        date,
-        status:"todo",
-        order:0,
-        listId,
-        createdBy: req.user?._id,
-    });
-
-    const createdTask= task;
-
-    if(!createdTask){
-        throw new apiError(500, "server error in creating task");
-    }
-    
-    const activityLog= await ActivityLog.create({
-        actionType: "TASK_CREATED",
-        entityType: "TASK",
-        entityId: task._id,
-        performedBy: req.user?._id,
-        taskId: task._id,
-        message: `Task "${task.title}" was created`
-    })
-
-    if(!activityLog){
-        throw new apiError(500, "server error in creating an activity log");
-    }
-
-    return res.status(201).json(
-        new apiResponse({createdTask, activityLog}, 201, "Task created successfully")
+  
+    const userId = req.user._id;
+    const isMember = board.members.some(
+      (memberId) => memberId.toString() === userId.toString()
     );
-})
-
+  
+    if (!isMember) {
+      throw new apiError(403, "User is not a board member");
+    }
+  
+    const task = await Task.create({
+      title,
+      description,
+      priority,
+      dueDate,
+      status: "todo",
+      order: 0,
+      listId,
+      createdBy: userId,
+    });
+  
+    return res.status(201).json(
+      new apiResponse(task, 201, "Task created successfully")
+    );
+  });
+  
 const getTasks = asyncHandler(async (req, res) => {
     const { listId } = req.params;
 

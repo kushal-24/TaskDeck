@@ -75,10 +75,46 @@ src/
 | “Show one board card visually” | `components/BoardCard.jsx` |
 
 
+user logs in
+            |
+            |
+            |
+--> boards.jsx(p) 
+1. (it fetches all the boards, and stores them, then a component is called and boards data is passed on to it which maps the components in a card format)- boardGrid.jsx(c);
+2. also it navigates the useer to create a new board by giving him a button
+            |
+            |
+            |
+-->board.jsx(p)
+1. first thing it does on loading is fetching all the board details,lists and also the tasks of that lists ✅
+2. displays the board details ✅
+3. a component included to create a new List(createList(c))--creates a list by showing input box 
+4. include a component listContainer and pass the data of list and tasks for it to map--
 
+Listcontainer.jsx(c)
+  |
+  |
+  |
+  it just maps the list data and includes a component (ListCard.jsx)(c) which is kindof like a big column of that list containing the mapped tasks by including a component TaskCards, at the end of each mapping iteration, a createTask component is present as the last task in that column
+  CreateTask(c):
+  |
+  |
+  |
+basically takes input (by desinging card as well and sends the info ) and then calls the addTask handler function from board.jsx by use of props,passing of props...in this way again fetching doesnt occur
+TaskCard.jsx(c):
+|
+|
+|
+basically it is present inside the listCard component, in which the whole task card ui is designed and is included as a component in every iteration of listCard mapping, 
+Task.jsx(c)
+|
+|
+|
+|
+detailed szoomed component containing comments, edit delete option, what all is modifiable thopse options are visiblke here
 
-
-
-
-
-
+ListCard.jsx(c):
+|
+|
+|
+ui of every list as well as mapping of tasks and delete edit function at the bottom

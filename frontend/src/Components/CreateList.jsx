@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 
-const CreateList = () => {
+const CreateList = ({onCreateList}) => {
   const [title, setTitle] = useState("");
-  const[editing,setEditing]=useState(false)
   const onSubmitHandler = (e) => {
     e.preventDefault();
     if (!title.trim()) return;
-
-    onCreate(title); 
-    setTitle(""); 
+    onCreateList(title);
+    setTitle("");
   };
 
   return (
@@ -42,8 +40,7 @@ const CreateList = () => {
         {/* Action */}
         <button
           type="submit"
-          className="w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
+          className="w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700">
           Create List
         </button>
       </form>

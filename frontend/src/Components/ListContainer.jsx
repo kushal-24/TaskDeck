@@ -1,22 +1,31 @@
-import React from 'react'
+import React, { useState } from "react";
+import ListCard from "./ListCard";
+import CreateTask from "./CreateTask";
 
-function ListContainer({list}) {
+function ListContainer({ lists, tasksByList, onCreateTask }) {
+  const [activeListId, setActiveListId] = useState(null);
+
   return (
-    <div>
-        {list.length === 0 ? (
-        <p>No lists yet</p>
-    ) : (
-        list.map((item) => (
-          <div
-            key={item._id}
-            className="mt-2 rounded bg-white p-3 shadow"
-          >
-            {item.title}
-          </div>
-        ))
-      )}
+    <div className="flex gap-4">
+      {lists.map((list) => (
+        <div key={list._id} className="w-72">
+          <ListCard
+            list={list}
+            tasks={tasksByList[list._id] || []}
+            onAddTask={() => setActiveListId(list._id)}
+          />
+
+          {activeListId === list._id && (
+            <CreateTask
+              listId={list._id}
+              onClose={() => setActiveListId(null)}
+              onCreateTask={(taskData) => onCreateTask(taskData, list._id)}
+            />
+          )}
+        </div>
+      ))}
     </div>
-  )
+  );
 }
 
-export default ListContainer
+export default ListContainer;

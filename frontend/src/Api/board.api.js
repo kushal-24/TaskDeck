@@ -5,7 +5,7 @@ export const getAllBoardsApi= ()=>{
 };
 
 export const getBoardByIdApi= (boardId)=>{
-    return api.get(`/board/${boardId}`);
+    return api.get(`/board/${boardId}/viewboard`);
 };
 
 export const createBoardApi= (data)=>{
