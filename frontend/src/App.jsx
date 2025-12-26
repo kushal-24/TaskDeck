@@ -12,67 +12,72 @@ import PublicRoute from "./Routes/PublicRoute";
 //pages
 import Login from "./Pages/Login.jsx";
 import Board from "./Pages/Board.jsx";
-import Boards from "./Pages/Boards.jsx"
+import Boards from "./Pages/Boards.jsx";
 import NotFound from "./Pages/NotFound.jsx";
 import Signup from "./Pages/Signup.jsx";
-import WelcomePg from "./Pages/WelcomePg.jsx"
+import WelcomePg from "./Pages/WelcomePg.jsx";
+import TaskDetailModal from "./Components/TaskDetailModal.jsx";
 
 function App() {
-
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
           <Route
-          path="/"
-          element= {
-            <PublicRoute>
-              <WelcomePg/>
-            </PublicRoute>
-          }
-          />
-
-          <Route
-          path="/login"
-          element= {
-            <PublicRoute>
-              <Login/>
-            </PublicRoute>
-          }
+            path="/"
+            element={
+              <PublicRoute>
+                <WelcomePg />
+              </PublicRoute>
+            }
           />
           <Route
-          path="/signup"
-          element= {
-            <PublicRoute>
-              <Signup/>
-            </PublicRoute>
-          }
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <Signup />
+              </PublicRoute>
+            }
           />
 
           {/* Private routes */}
+
           <Route
-          path="/boards/:boardId"
-          element= {
-            <PrivateRoute>
-              <Board/>
-            </PrivateRoute>
-          }
+            path="/boards"
+            element={
+              <PrivateRoute>
+                <Boards />
+              </PrivateRoute>
+            }
           />
+
           <Route
-          path="/boards"
-          element= {
+            path="/boards/:boardId"
+            element={
+              <PrivateRoute>
+                <Board />
+              </PrivateRoute>
+            }
+          />
+
+          <Route path="/task/:taskId"
+          element={
             <PrivateRoute>
-              <Boards/>
+              <TaskDetailModal/>
             </PrivateRoute>
           }
           />
 
-
-          <Route
-          path="*"
-          element= {<NotFound/>}
-          />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

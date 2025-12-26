@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ListCard from "./ListCard";
 import CreateTask from "./CreateTask";
 
-function ListContainer({ lists, tasksByList, onCreateTask }) {
+function ListContainer({ lists, tasksByList, onCreateTask, onDeleteTask, onTaskClick }) {
   const [activeListId, setActiveListId] = useState(null);
 
   return (
@@ -13,6 +13,7 @@ function ListContainer({ lists, tasksByList, onCreateTask }) {
             list={list}
             tasks={tasksByList[list._id] || []}
             onAddTask={() => setActiveListId(list._id)}
+            onTaskClick={onTaskClick}
           />
 
           {activeListId === list._id && (
@@ -20,6 +21,14 @@ function ListContainer({ lists, tasksByList, onCreateTask }) {
               listId={list._id}
               onClose={() => setActiveListId(null)}
               onCreateTask={(taskData) => onCreateTask(taskData, list._id)}
+              /*
+              When CreateTask gives me taskData,
+              I will call Board’s onCreateTask
+              and I’ll ATTACH the current listId myself.
+              */
+
+             onDeleteTask={onDeleteTask}
+            //  onEditTask={onEditTask}
             />
           )}
         </div>

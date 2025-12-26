@@ -1,9 +1,9 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 //map toh kardiya container ne...ab rendering and display listCard karega
 
-const ListCard = ({ list, tasks, onAddTask }) => {
-
+const ListCard = ({ list, tasks, onAddTask, onDeleteTask, onEditTask, onTaskClick}) => {
+  const navigate=useNavigate()
 
   return (
     <div className="w-72 bg-gray-100 rounded-lg p-3 shadow-sm">
@@ -17,8 +17,10 @@ const ListCard = ({ list, tasks, onAddTask }) => {
         {tasks && tasks.length > 0 ? (
           tasks.map((task) => (
             <div
+              onClick={()=>onTaskClick(task)}
               key={task._id}
               className="bg-white rounded-md p-3 shadow-sm cursor-pointer hover:bg-gray-50">
+             
               {/* Task Title */}
               <p className="text-sm text-gray-800">{task.title}</p>
 

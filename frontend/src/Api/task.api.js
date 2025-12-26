@@ -13,7 +13,7 @@ export const updateTask=(data, taskId)=>{
 }
 
 export const deleteTaskApi=(taskId)=>{
-    return api.delete(`/task/${taskId}/deleteTask`);
+    return api.delete(`/task/${taskId}/deletetask`);
 };
 
 export const reorderTaskApi=(listId, data)=>{
