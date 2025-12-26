@@ -69,15 +69,9 @@ function App() {
             }
           />
 
-          <Route path="/task/:taskId"
-          element={
-            <PrivateRoute>
-              <TaskDetailModal/>
-            </PrivateRoute>
-          }
-          />
-
-          <Route path="*" element={<NotFound />} />
+          <Route 
+          path="*" 
+          element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

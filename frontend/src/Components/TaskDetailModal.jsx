@@ -1,98 +1,164 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 
-
-const TaskDetailModal = ({task, onClose}) => {
+const TaskDetailModal = ({ task, onClose, onDeleteTask, onEditTask }) => {
   if (!task) return null;
+  const [title, setTitle] = useState(task.title);
+  const [description, setDescription] = useState(task.description);
+  const [priority, setPriority] = useState(task.priority);
+  const [dueDate, setDueDate] = useState(task.dueDate);
+  const [editable, setEditable] = useState(false);
 
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-        
-        {/* Backdrop */}
-        <div className="absolute inset-0 bg-black/40" />
-  
-        {/* Modal */}
-        <div className="relative w-full max-w-2xl rounded-xl bg-white shadow-xl">
-          
-          {/* Header */}
-          <div className="flex items-center justify-between border-b px-6 py-4">
+  const handleDelete = () => {
+    onDeleteTask(task._id, task.listId);
+    onClose();
+  };
+
+  const startEdit = () => {
+    setEditable(true);
+  };
+
+  const saveEdit = () => {
+    const updatedTask = {
+      title,
+      description,
+      priority,
+      dueDate,
+    };
+
+    onEditTask(updatedTask, task._id, task.listId);
+    setEditable(false);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/40" />
+
+      {/* Modal */}
+      <div className="relative w-full max-w-2xl rounded-xl bg-white shadow-xl">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b px-6 py-4">
+          {!editable ? (
             <h2 className="text-lg font-semibold text-gray-800">
-              Task Title Goes Here
+              {task.title}
             </h2>
-  
-            <button 
+          ) : (
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full rounded border px-2 py-1 text-lg font-semibold"
+            />
+          )}
+          <button
             onClick={onClose}
-            className="cursor-pointer text-gray-400 hover:text-gray-600">
-              ✕
-            </button>
-          </div>
-  
-          {/* Body */}
-          <div className="space-y-6 px-6 py-5">
-            
-            {/* Meta */}
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-500">Due Date</p>
-                <p className="font-medium text-gray-800">25 Dec 2025</p>
-              </div>
-  
-              <div>
-                <p className="text-gray-500">Priority</p>
-                <span className="inline-block rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
-                  High
-                </span>
-              </div>
-            </div>
-  
-            {/* Description */}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="space-y-6 px-6 py-5">
+          {/* Meta */}
+          <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="mb-1 text-sm font-medium text-gray-700">
-                Description
-              </p>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                This task involves designing the authentication flow and
-                integrating it with the backend API.
-              </p>
+              <p className="text-gray-500">Due Date</p>
+              {!editable ? (
+                <p className="font-medium">{task.dueDate}</p>
+              ) : (
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="rounded border px-2 py-1"
+                />
+              )}
             </div>
-  
-            {/* Assignees */}
+
             <div>
-              <p className="mb-2 text-sm font-medium text-gray-700">
-                Assignees
-              </p>
-              <div className="flex -space-x-2">
-                <div className="h-8 w-8 rounded-full bg-gray-300" />
-                <div className="h-8 w-8 rounded-full bg-gray-400" />
-                <div className="h-8 w-8 rounded-full bg-gray-500" />
-              </div>
-            </div>
-  
-            {/* Attachments */}
-            <div>
-              <p className="mb-2 text-sm font-medium text-gray-700">
-                Attachments
-              </p>
-              <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500">
-                Drag & drop files or click to upload
-              </div>
+              <p className="text-gray-500">Priority</p>
+              {!editable ? (
+                <p className="font-medium">{task.priority}</p>
+              ) : (
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  className="rounded border px-2 py-1">
+                    
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              )}
             </div>
           </div>
-  
-          {/* Footer */}
-          <div className="flex items-center justify-between border-t px-6 py-4">
-            <button className="rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-200">
-              Delete Task
-            </button>
-  
-            <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-              Edit Task
-            </button>
+
+          {/* Description */}
+          <div>
+            <p className="mb-1 text-sm font-medium text-gray-700">
+              Description
+            </p>
+            {!editable ? (
+              <p className="text-sm text-gray-600">{task.description}</p>
+            ) : (
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full rounded border px-2 py-1 text-sm"
+              />
+            )}
+          </div>
+
+          {/* Assignees */}
+          <div>
+            <p className="mb-2 text-sm font-medium text-gray-700">
+              {task.assignees}
+            </p>
+            <div className="flex -space-x-2">
+              <div className="h-8 w-8 rounded-full bg-gray-300" />
+              <div className="h-8 w-8 rounded-full bg-gray-400" />
+              <div className="h-8 w-8 rounded-full bg-gray-500" />
+            </div>
+          </div>
+
+          {/* Attachments */}
+          <div>
+            <p className="mb-2 text-sm font-medium text-gray-700">
+              Attachments
+            </p>
+            <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500">
+              Drag & drop files or click to upload
+            </div>
           </div>
         </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between border-t px-6 py-4">
+          <button
+            onClick={handleDelete}
+            className="rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-200"
+            >Delete Task</button>
+
+          {!editable ? (<button
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          onClick={startEdit}
+          >
+            Edit Task </button>) : 
+            (
+              <button
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              onClick={saveEdit}
+              >
+                update Task
+              </button>
+            ) 
+            }
+        </div>
       </div>
-    );
-  };
-  
-  export default TaskDetailModal;
-  
+    </div>
+  );
+};
+
+export default TaskDetailModal;

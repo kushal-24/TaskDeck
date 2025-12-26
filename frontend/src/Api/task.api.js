@@ -8,7 +8,7 @@ export const getTaskApi=(listId)=>{
     return api.get(`/list/${listId}/gettasks`);
 }
 
-export const updateTask=(data, taskId)=>{
+export const editTaskApi=(data, taskId)=>{
     return api.patch(`/task/${taskId}/updatetask`, data);
 }
 

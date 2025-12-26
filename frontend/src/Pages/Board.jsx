@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../Api/axios";
 import { getBoardByIdApi } from "../Api/board.api.js";
-import { createListApi, deleteListApi } from "../Api/list.api.js";
-import { createTaskApi } from "../Api/task.api.js";
+import { createListApi, deleteListApi, editListApi } from "../Api/list.api.js";
+import { createTaskApi, deleteTaskApi, editTaskApi } from "../Api/task.api.js";
 import { getListApi } from "../Api/list.api.js";
 import { getTaskApi } from "../Api/task.api.js";
 import ListContainer from "../Components/ListContainer.jsx";
@@ -56,6 +56,19 @@ function Board() {
     setTasksByList((prev) => ({ ...prev, [createdList._id]: [] }));
   };
 
+  const editList=async(listId, title)=>{
+    const res = await editListApi({title}, listId);
+    const editedList = res.data.data;
+
+    setLists((prev) =>
+      prev.map((list) =>
+        list._id === listId
+          ? { ...list, title: editedList.title }
+          : list
+      )
+    );
+  }
+
   const deleteList = async (listId) => {
     await deleteListApi(listId);
 
@@ -77,7 +90,23 @@ function Board() {
     }));
   };
 
-  const deleteTask = (taskId, listId) => {
+  const editTask = async (editedData, taskId, listId) => {
+    const res = await editTaskApi(editedData, taskId);
+    const editedTask = res.data.data;
+  
+    setTasksByList((prev) => ({
+      ...prev,
+      [listId]: prev[listId].map((task) =>
+        task._id === taskId
+          ? { ...task, ...editedTask } // replace edited task
+          : task
+      ),
+    }));
+  };
+  
+
+  const deleteTask = async(taskId, listId) => {
+    await deleteTaskApi(taskId);
     setTasksByList((prev) => ({
       ...prev,
       [listId]: prev[listId].filter((task) => task._id !== taskId),
@@ -102,9 +131,9 @@ function Board() {
       <ListContainer
         lists={lists}
         tasksByList={tasksByList}
-        onTaskClick={setActiveTask}
+        onTaskClick={setActiveTask} //just to set activeTask
         onCreateTask={addTask}
-        onDeleteTask={deleteTask}
+        onEditList={editList}
         //onEditTask={editTask}
       />
 
@@ -112,8 +141,10 @@ function Board() {
 
       {activeTask && (
         <TaskDetailModal
-          task={activeTask}
+          task={activeTask}//to pass the data of the task as a whole to taskDetailModal
           onClose={() => setActiveTask(null)}
+          onDeleteTask={deleteTask}
+          onEditTask={editTask}
         />
       )}
     </div>

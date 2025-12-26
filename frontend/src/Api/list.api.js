@@ -8,8 +8,8 @@ export const getListApi=(boardId)=>{
     return api.get(`/board/${boardId}/getlist`);
 }
 
-export const updateList=(data, listId)=>{
-    return api.patch(`/list/${listId}/getlist`, data);
+export const editListApi=(data, listId)=>{
+    return api.patch(`/list/${listId}/updatelist`, data);
 }
 
 export const deleteListApi=(listId)=>{
