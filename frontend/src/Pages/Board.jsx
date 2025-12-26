@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "../Api/axios";
 import { getBoardByIdApi } from "../Api/board.api.js";
 import { createListApi, deleteListApi, editListApi } from "../Api/list.api.js";
 import { createTaskApi, deleteTaskApi, editTaskApi } from "../Api/task.api.js";
@@ -25,6 +24,7 @@ function Board() {
         //fetch board data
         const resBoard = await getBoardByIdApi(boardId);
         console.log(resBoard.data.data);
+        setBoard[resBoard.data.data];
         //fetch list data
         const resLists = await getListApi(boardId);
         const listsData = resLists.data.data;
@@ -102,8 +102,7 @@ function Board() {
           : task
       ),
     }));
-  };
-  
+  };  
 
   const deleteTask = async(taskId, listId) => {
     await deleteTaskApi(taskId);
@@ -134,10 +133,11 @@ function Board() {
         onTaskClick={setActiveTask} //just to set activeTask
         onCreateTask={addTask}
         onEditList={editList}
+        onDeleteList={deleteList}
         //onEditTask={editTask}
       />
 
-      <CreateList onCreateList={addList} onDeleteList={deleteList} />
+      <CreateList boardData={board} onCreateList={addList} />
 
       {activeTask && (
         <TaskDetailModal
