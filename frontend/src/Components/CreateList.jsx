@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { useAuth } from "../Context/Auth.context";
 
-const CreateList = ({onCreateList}) => {
+const CreateList = ({onCreateList, boardData}) => {
   const [title, setTitle] = useState("");
   const onSubmitHandler = (e) => {
     e.preventDefault();
@@ -10,7 +11,7 @@ const CreateList = ({onCreateList}) => {
   };
 
   return (
-    <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="w-full max-w-md mt-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       {/* Header */}
       <h2 className="text-lg font-semibold text-gray-800">Create New List</h2>
       <p className="mt-1 text-sm text-gray-500">

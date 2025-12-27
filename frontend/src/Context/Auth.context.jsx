@@ -19,7 +19,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    checkAuth();
+    if (!user) {
+      checkAuth();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const login= async({email,password})=>{
@@ -31,12 +35,19 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.log("error in logging in :", error.response?.data?.message);
     }
+    finally{
+      setLoading(false)
+    }
   }
 
   const logout = async () => {
-    await logoutApi()
-    setUser(null);
+    try {
+      await logoutApi();
+    } finally {
+      setUser(null);
+    }
   };
+
 
   return (
     <AuthContext.Provider //Everything inside {children} can access: these values without props
@@ -46,6 +57,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         logout,
+        checkAuth
       }}>
       {children}
     </AuthContext.Provider>

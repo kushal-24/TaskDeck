@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getBoardByIdApi } from "../Api/board.api.js";
+import { getBoardByIdApi, getboardmembersApi } from "../Api/board.api.js";
 import { createListApi, deleteListApi, editListApi } from "../Api/list.api.js";
 import { createTaskApi, deleteTaskApi, editTaskApi } from "../Api/task.api.js";
 import { getListApi } from "../Api/list.api.js";
@@ -12,6 +12,7 @@ import TaskDetailModal from "../Components/TaskDetailModal.jsx";
 function Board() {
   const [board, setBoard] = useState(null);
   const [lists, setLists] = useState([]);
+  const[boardMembers,setBoardMembers]=useState([])
   const [tasksByList, setTasksByList] = useState({});
   const { boardId } = useParams();
 
@@ -23,11 +24,16 @@ function Board() {
       try {
         //fetch board data
         const resBoard = await getBoardByIdApi(boardId);
-        console.log(resBoard.data.data);
         setBoard[resBoard.data.data];
+
+        //fetch all board members
+        const resMembers= await getboardmembersApi(boardId);
+        setBoardMembers(resMembers.data.data);
+        
         //fetch list data
         const resLists = await getListApi(boardId);
         const listsData = resLists.data.data;
+        console.log(listsData);
         setLists(listsData);
 
         //fetch tasks from listId
@@ -47,6 +53,7 @@ function Board() {
     fetchBLT();
   }, [boardId]);
 
+  ////LIST operations
   const addList = async (title) => {
     if (!title.trim()) return;
     const res = await createListApi(boardId, { title });
@@ -56,18 +63,16 @@ function Board() {
     setTasksByList((prev) => ({ ...prev, [createdList._id]: [] }));
   };
 
-  const editList=async(listId, title)=>{
-    const res = await editListApi({title}, listId);
+  const editList = async (listId, title) => {
+    const res = await editListApi({ title }, listId);
     const editedList = res.data.data;
 
     setLists((prev) =>
       prev.map((list) =>
-        list._id === listId
-          ? { ...list, title: editedList.title }
-          : list
+        list._id === listId ? { ...list, title: editedList.title } : list
       )
     );
-  }
+  };
 
   const deleteList = async (listId) => {
     await deleteListApi(listId);
@@ -80,6 +85,7 @@ function Board() {
     });
   };
 
+  //TASK operations
   const addTask = async (newTask, listId) => {
     const res = await createTaskApi(listId, newTask);
     const createdTask = res.data.data;
@@ -88,12 +94,14 @@ function Board() {
       ...prev,
       [listId]: [...(prev[listId] || []), createdTask],
     }));
+
+
   };
 
   const editTask = async (editedData, taskId, listId) => {
     const res = await editTaskApi(editedData, taskId);
     const editedTask = res.data.data;
-  
+
     setTasksByList((prev) => ({
       ...prev,
       [listId]: prev[listId].map((task) =>
@@ -102,15 +110,67 @@ function Board() {
           : task
       ),
     }));
-  };  
+  };
 
-  const deleteTask = async(taskId, listId) => {
+  const deleteTask = async (taskId, listId) => {
     await deleteTaskApi(taskId);
     setTasksByList((prev) => ({
       ...prev,
       [listId]: prev[listId].filter((task) => task._id !== taskId),
     }));
   };
+
+  //ASSIGNEES...imp
+  const addAssignee = (userId, taskId, listId) => {
+    setTasksByList((prev) => ({
+      ...prev,
+      [listId]: prev[listId].map((task) =>
+        task._id === taskId
+          ? {
+            ...task,
+            assignees: task.assignees.includes(userId) 
+            ? task.assignees
+            : [...task.assignees, userId]
+          }
+          : task
+      ),
+    }));
+
+    setActiveTask((prev) =>
+      prev && prev._id === taskId
+        ? {
+            ...prev,
+            assignees: prev.assignees.includes(userId)
+              ? prev.assignees
+              : [...prev.assignees, userId],
+          }
+        : prev
+    );
+  };
+
+  const removeAssignee = (userId, taskId, listId) => {
+    setTasksByList((prev) => ({
+      ...prev,
+      [listId]: prev[listId].map((task) =>
+        task._id === taskId
+          ? {
+              ...task,
+              assignees: [task.assignees.filter((assignee)=> assignee !==userId)],
+            }
+          : task
+      ),
+    }));
+
+    setActiveTask((prev) =>
+      prev && prev._id === taskId
+        ? {
+            ...prev,
+            assignees: prev.assignees.filter(id => id !== userId),
+          }
+        : prev
+    );
+  };
+
 
   return (
     <div style={{ padding: "16px" }}>
@@ -123,10 +183,10 @@ function Board() {
         <b>Description:</b> {board?.description}
       </p>
 
-      <hr />
+      <hr/>
 
       {/* Lists and Tasks */}
-      <h3 className="text-4xl">Lists</h3>
+      <h3 className="text-4xl mt-4">Lists</h3>
       <ListContainer
         lists={lists}
         tasksByList={tasksByList}
@@ -134,17 +194,20 @@ function Board() {
         onCreateTask={addTask}
         onEditList={editList}
         onDeleteList={deleteList}
-        //onEditTask={editTask}
       />
 
-      <CreateList boardData={board} onCreateList={addList} />
+      <CreateList onCreateList={addList} />
 
       {activeTask && (
         <TaskDetailModal
-          task={activeTask}//to pass the data of the task as a whole to taskDetailModal
+          boardData={board}
+          members={boardMembers}
+          task={activeTask} //to pass the data of the task as a whole to taskDetailModal
           onClose={() => setActiveTask(null)}
           onDeleteTask={deleteTask}
           onEditTask={editTask}
+          onAddAssignee={addAssignee}
+          onRemoveAssignee={removeAssignee}
         />
       )}
     </div>

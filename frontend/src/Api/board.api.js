@@ -20,3 +20,14 @@ export const deleteBoardApi=(boardId)=>{
     return api.delete(`/board/${boardId}`);
 };
 
+export const addMemberApi=(userId)=>{
+    return api.post(`/board/${userId}/addmember`);
+}
+
+export const removeMemberApi=(userId)=>{
+    return api.post(`/board/${userId}/removemember`);
+}
+
+export const getboardmembersApi=(boardId)=>{
+    return api.get(`/board/${boardId}/getboardmembers`);
+}

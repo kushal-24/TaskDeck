@@ -71,7 +71,54 @@ const removeMember=asyncHandler(async(req,res,next)=>{
     )
 })
 
+
+const getBoardMembers = async (req, res) => {
+    const { boardId } = req.params;
+    const userId = req.user._id;
+
+    const board = await Board.findById(boardId)
+      .populate("members", "fullName email")
+      .populate("ownerId", "fullName email");
+
+    if (!board) {
+      return res.status(404).json({
+        success: false,
+        message: "Board not found",
+      });
+    }
+
+    const isMember =
+      board.ownerId.toString() === userId.toString() ||
+      board.members.some(
+        (member) => member._id.toString() === userId.toString()
+      );
+
+    if (!isMember) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to view board members",
+      });
+    }
+
+    const members = [...board.members];
+
+    if(!members){ 
+        throw new apiError(500, "server error");
+    }
+
+    return res
+    .json(
+        new apiResponse(
+            members,
+            200,
+            "members fetched successfully"
+        )
+    )
+}
+
+
 export{
     addMember,
-    removeMember
+    removeMember,
+    getBoardMembers,    
 }

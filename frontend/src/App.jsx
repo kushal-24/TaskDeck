@@ -17,6 +17,7 @@ import NotFound from "./Pages/NotFound.jsx";
 import Signup from "./Pages/Signup.jsx";
 import WelcomePg from "./Pages/WelcomePg.jsx";
 import TaskDetailModal from "./Components/TaskDetailModal.jsx";
+import CreateBoard from "./Pages/CreateBoard.jsx";
 
 function App() {
   return (
@@ -56,6 +57,15 @@ function App() {
             element={
               <PrivateRoute>
                 <Boards />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/boards/new"
+            element={
+              <PrivateRoute>
+                <CreateBoard/>
               </PrivateRoute>
             }
           />

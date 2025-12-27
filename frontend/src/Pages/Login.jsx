@@ -23,7 +23,7 @@ const Login = () => {
 
     try {
       await login({ email, password });
-      navigate('/boards')
+      navigate('/boards', { replace: true })
     } catch (error) {
       throw error; 
     }

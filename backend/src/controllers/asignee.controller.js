@@ -124,12 +124,13 @@ const fetchAllAssignees=asyncHandler(async(req,res,next)=>{
     if(!task){
         throw new apiError(400, "no task found by id");
     }
-
     const allAssignees=task.assignees;
 
     return res
-    .status(200)
-    .json( new apiResponse( 200,allAssignees,
+
+    .json( new apiResponse( 
+        allAssignees,
+        200,
         "fetched all assignees succsssfully!",
         ))
 })

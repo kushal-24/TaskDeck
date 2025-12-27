@@ -13,7 +13,12 @@ const listSchema = new mongoose.Schema({
     order: {
         type: Number,
         default: 0
-    }
+    },
+    createdBy: {                     
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
 }, { timestamps: true });
 
 export const List = mongoose.model("List", listSchema);

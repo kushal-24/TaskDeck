@@ -21,6 +21,6 @@ export const googleCallBack=asyncHandler(async(req,res,next)=>{
     .status(302)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .redirect("http://localhost:5173/boards");
+    .redirect("http://localhost:5173/oauth/callback");
 })
 

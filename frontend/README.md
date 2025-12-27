@@ -119,11 +119,3 @@ ListCard.jsx(c):
 |
 ui of every list as well as mapping of tasks and delete edit function at the bottom
 
-
-Action	        Who can do it
-Create List--	    Board member
-Edit/Delete List--	List creator
-Create Task	List-- creator
-Edit/Delete Task--	Task creator
-Assign Task	List-- creator
-Change Task Status--	Assignee

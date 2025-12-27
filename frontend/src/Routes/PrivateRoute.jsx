@@ -5,7 +5,7 @@ const privateRoute=({children})=>{
     const{isAuthenticated, loading}=useAuth();
 
     if(loading){
-        return <p>Loading</p>
+        return null;
     }
     if(!isAuthenticated){
         return <Navigate to="/login" replace/> //“Replace the current URL in history instead of adding a new one.”

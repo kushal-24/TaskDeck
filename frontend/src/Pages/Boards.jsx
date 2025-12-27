@@ -7,33 +7,40 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { replace, useNavigate } from "react-router-dom";
 import { getAllBoardsApi } from "../Api/board.api";
 
 import BoardGrid from "../Components/BoardGrid.jsx";
+import { logoutApi } from "../Api/auth.api.js";
+import { useAuth } from "../Context/Auth.context.jsx";
 
 const Boards = () => {
   const [boards, setBoards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const{logout}=useAuth()
+  const{ user }=useAuth();
   const navigate = useNavigate();
 
   // ✅ Fetch all boards
-  useEffect(() => {
-    const fetchBoards = async () => {
-      try {
-        const res = await getAllBoardsApi();
-        console.log(res.data.data);
-        setBoards(res.data.data || []);
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to fetch boards");
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchBoards();
+  useEffect(() => {
+    if(user){
+      const fetchBoards = async () => {
+        try {
+          const res = await getAllBoardsApi();
+          console.log(res.data.data);
+          setBoards(res.data.data || []);
+        } catch (err) {
+          setError(err.response?.data?.message || "Failed to fetch boards");
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchBoards();
+    }
+    else return <p className="text-4xl">Loading..........</p>
   }, []);
 
   if (loading) {
@@ -45,7 +52,13 @@ const Boards = () => {
   }
 
 
+  const logoutHandler=async()=>{
+    await logout();
+    navigate('/login',{ replace: true });
+  }
+
   return (
+    <>
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
@@ -54,8 +67,17 @@ const Boards = () => {
         {/* ➕ Create board button */}
         <button
           onClick={() => navigate("/boards/new")}
-          className="rounded-md bg-blue-600 px-4 py-2 text-white">
+          className="rounded-md bg-blue-600 px-4 py-2 text-white cursor-pointer">
           Create New Board
+        </button>
+        <button
+          className="rounded-md bg-blue-600 px-4 py-2 text-white cursor-pointer">
+          Edit profile
+        </button>
+        <button
+        onClick={logoutHandler}
+          className="rounded-md bg-blue-600 px-4 py-2 text-white cursor-pointer">
+          logout
         </button>
       </div>
 
@@ -65,6 +87,7 @@ const Boards = () => {
         onBoardClick={(boardId) => navigate(`/boards/${boardId}`)}
       />
     </div>
+  </>
   );
 };
 

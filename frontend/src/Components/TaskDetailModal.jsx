@@ -1,20 +1,45 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import { useAuth } from "../Context/Auth.context";
+import UserDropdown from "./UserDropdown";
 
-const TaskDetailModal = ({ task, onClose, onDeleteTask, onEditTask }) => {
+const TaskDetailModal = ({
+  task,
+  onClose,
+  onDeleteTask,
+  onEditTask,
+  onAddAssignee,
+  onRemoveAssignee,
+  members,
+}) => {
   if (!task) return null;
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
   const [priority, setPriority] = useState(task.priority);
   const [dueDate, setDueDate] = useState(task.dueDate);
   const [editable, setEditable] = useState(false);
+  const { user } = useAuth();
+
+  const formatName = (name) =>
+    name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 
   const handleDelete = () => {
+    const canDeleteTask = task.createdBy === user._id;
+
+    if (!canDeleteTask) {
+      alert("You are not allowed to deleete this task");
+      return;
+    }
     onDeleteTask(task._id, task.listId);
     onClose();
   };
 
   const startEdit = () => {
+    const canEditTask = task.createdBy === user._id;
+    if (!canEditTask) {
+      alert("You are not allowed to edit this task");
+      return;
+    }
     setEditable(true);
   };
 
@@ -85,8 +110,8 @@ const TaskDetailModal = ({ task, onClose, onDeleteTask, onEditTask }) => {
                 <select
                   value={priority}
                   onChange={(e) => setPriority(e.target.value)}
-                  className="rounded border px-2 py-1">
-                    
+                  className="rounded border px-2 py-1"
+                >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
                   <option value="high">High</option>
@@ -113,13 +138,24 @@ const TaskDetailModal = ({ task, onClose, onDeleteTask, onEditTask }) => {
 
           {/* Assignees */}
           <div>
-            <p className="mb-2 text-sm font-medium text-gray-700">
-              {task.assignees}
-            </p>
-            <div className="flex -space-x-2">
-              <div className="h-8 w-8 rounded-full bg-gray-300" />
-              <div className="h-8 w-8 rounded-full bg-gray-400" />
-              <div className="h-8 w-8 rounded-full bg-gray-500" />
+            <div className="flex flex-row gap-3">
+              <div className="flex -space-x-2">
+                <div className="h-8 w-8 rounded-full bg-gray-300" />
+                <div className="h-8 w-8 rounded-full bg-gray-400" />
+                <div className="h-8 w-8 rounded-full bg-gray-500" />
+              </div>
+              <p className="mb-2 text-sm font-medium text-gray-700">
+                {task.assignees
+                  .map((id) => formatName(members.find((m) => m._id === id)?.fullName))
+                  .filter(Boolean)
+                  .join(", ")}{" "}
+              </p>
+              <UserDropdown
+                taskData={task}
+                members={members}
+                onAddAssignee={onAddAssignee}
+                onRemoveAssignee={onRemoveAssignee}
+              />
             </div>
           </div>
 
@@ -139,22 +175,25 @@ const TaskDetailModal = ({ task, onClose, onDeleteTask, onEditTask }) => {
           <button
             onClick={handleDelete}
             className="rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-200"
-            >Delete Task</button>
-
-          {!editable ? (<button
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          onClick={startEdit}
           >
-            Edit Task </button>) : 
-            (
-              <button
+            Delete Task
+          </button>
+
+          {!editable ? (
+            <button
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              onClick={startEdit}
+            >
+              Edit Task{" "}
+            </button>
+          ) : (
+            <button
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
               onClick={saveEdit}
-              >
-                update Task
-              </button>
-            ) 
-            }
+            >
+              update Task
+            </button>
+          )}
         </div>
       </div>
     </div>

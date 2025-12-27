@@ -1,19 +1,19 @@
 import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useAuth } from "../Context/Auth.context";
 //map toh kardiya container ne...ab rendering and display listCard karega
 
-const ListCard = ({
-  list,
-  tasks,
-  onAddTask,
-  onDeleteTask,
-  onEditList,
-  onTaskClick,
-}) => {
+const ListCard = ({ list, tasks, onAddTask, onEditList, onTaskClick }) => {
   const [editable, setEditable] = useState(false);
   const [title, setTitle] = useState(list.title);
+  const { user } = useAuth();
 
   const startEdit = () => {
+    const canEditList = list.createdBy === user._id;
+
+    if (!canEditList) {
+      alert("You are not allowed to edit this list");
+      return;
+    }
     setEditable(true);
   };
 
@@ -23,6 +23,9 @@ const ListCard = ({
     }
     setEditable(false);
   };
+
+  const canAddTask = list.createdBy === user._id;
+
 
   return (
     <div className="w-72 bg-gray-100 rounded-lg p-3 shadow-sm">
@@ -55,7 +58,8 @@ const ListCard = ({
             <div
               onClick={() => onTaskClick(task)}
               key={task._id}
-              className="bg-white rounded-md p-3 shadow-sm cursor-pointer hover:bg-gray-50">
+              className="bg-white rounded-md p-3 shadow-sm cursor-pointer hover:bg-gray-50"
+            >
               {/* Task Title */}
               <p className="text-sm text-gray-800">{task.title}</p>
 
@@ -72,12 +76,11 @@ const ListCard = ({
       </div>
 
       {/* Create Task Placeholder */}
-      <div
+      {canAddTask && (<div
         onClick={onAddTask}
-        className="mt-3 text-sm text-gray-500 cursor-pointer hover:text-gray-700"
-      >
-        + Add a task
-      </div>
+        className="mt-3 text-sm text-gray-500 cursor-pointer hover:text-gray-700"> 
+      + Add a task
+      </div>)}
     </div>
   );
 };

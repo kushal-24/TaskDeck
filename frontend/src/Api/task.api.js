@@ -20,6 +20,18 @@ export const reorderTaskApi=(listId, data)=>{
     return api.post(`/list/${listId}/task/reorder`, data);
 };
 
+export const assignMemberApi=(userId)=>{
+    return api.post(`/task/${userId}/assign`)
+}
+
+export const unAssignMemberApi=(userId)=>{
+    return api.post(`/task/${userId}/unassign`)
+}
+
+export const getAllAssigneeApi=(taskId)=>{
+    return api.get(`/task/${taskId}/getallassignee`)
+}
+
 ///////to be done, comments and assigning members
 
 
