@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../Context/Auth.context";
 import UserDropdown from "./UserDropdown";
+import { useFileUpload } from "../Hooks/FileUpload";
 
 const TaskDetailModal = ({
   task,
@@ -25,6 +26,9 @@ const TaskDetailModal = ({
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [content, setContent] = useState("");
   const [comment, setComment] = useState("");
+  const [file, setFile] = useState(null);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const { upload, remove } = useFileUpload();
 
   const { user } = useAuth();
   const formatName = (name) =>
@@ -69,6 +73,36 @@ const TaskDetailModal = ({
     onEditComment({ content, commentId: c._id });
     setEditingCommentId(null);
     setContent("");
+  };
+
+  //attachments///////////
+  const handleFileChange = () => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleAttach = async () => {
+    if (!file) return;
+
+    try {
+      const uploaded = await upload(task._id, file);
+
+      // store full object, not just url
+      setUploadedFile(uploaded);
+      setFile(null);
+    } catch (err) {
+      console.error("File upload failed", err);
+    }
+  };
+
+  const handleDeleteFile = async () => {
+    if (!uploadedFile) return;
+
+    try {
+      await remove(uploadedFile._id || uploadedFile.public_id);
+      setUploadedFile(null);
+    } catch (err) {
+      console.error("File delete failed", err);
+    }
   };
 
   return (
@@ -178,13 +212,51 @@ const TaskDetailModal = ({
             </div>
 
             {/* Attachments */}
+            {/* Attachments */}
             <div>
               <p className="mb-2 text-sm font-medium text-gray-700">
                 Attachments
               </p>
-              <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500">
-                Drag & drop files or click to upload
-              </div>
+
+              {/* Upload box */}
+              {!uploadedFile && (
+                <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 space-y-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e)=>setFile(e.target.files[0])}
+                  />
+
+                  {file && (
+                    <button
+                      onClick={handleAttach}
+                      className="block mx-auto rounded bg-blue-600 px-3 py-1 text-sm text-white">
+                      Upload file
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Uploaded preview */}
+              {uploadedFile && (
+                <div className="flex items-center justify-between rounded border p-3">
+                  <a
+                    href={uploadedFile.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm text-blue-600 underline"
+                  >
+                    View attachment
+                  </a>
+
+                  <button
+                    onClick={handleDeleteFile}
+                    className="text-sm text-red-600 hover:underline"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -209,19 +281,22 @@ const TaskDetailModal = ({
                     {!editingCommentId ? (
                       <span
                         onClick={() => startEditComment(c)}
-                        className="cursor-pointer hover:text-gray-700" >
+                        className="cursor-pointer hover:text-gray-700"
+                      >
                         Edit
                       </span>
                     ) : (
                       <span
                         onClick={() => saveEditComment(c)}
-                        className="cursor-pointer hover:text-gray-700">
+                        className="cursor-pointer hover:text-gray-700"
+                      >
                         Save changes
                       </span>
                     )}
-                    <span 
-                    onClick={()=> onDeleteComment(c._id)}
-                    className="cursor-pointer hover:text-red-600">
+                    <span
+                      onClick={() => onDeleteComment(c._id)}
+                      className="cursor-pointer hover:text-red-600"
+                    >
                       Delete
                     </span>
                     <span className="font-bold">{c.userId}</span>
@@ -241,7 +316,8 @@ const TaskDetailModal = ({
               />
               <button
                 onClick={handleAddComment}
-                className="mt-2 rounded bg-blue-100 px-3 py-1 text-sm text-blue-700 hover:bg-blue-200">
+                className="mt-2 rounded bg-blue-100 px-3 py-1 text-sm text-blue-700 hover:bg-blue-200"
+              >
                 Add Comment
               </button>
             </div>
@@ -252,20 +328,23 @@ const TaskDetailModal = ({
         <div className="flex items-center justify-between border-t px-6 py-4">
           <button
             onClick={handleDeleteTask}
-            className="rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-200">
+            className="rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-200"
+          >
             Delete Task
           </button>
 
           {!editableTask ? (
             <button
               onClick={startEditTask}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white">
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+            >
               Edit Task
             </button>
           ) : (
             <button
               onClick={saveEditTask}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white">
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+            >
               Update Task
             </button>
           )}

@@ -9,6 +9,7 @@ import { ActivityLog } from "../models/activityLog.model.js";
 import { User } from "../models/user.model.js";
 import {List} from "../models/list.model.js"
 import {Board} from "../models/board.model.js"
+import mongoose from "mongoose";
 
 
 const createTask = asyncHandler(async (req, res) => {
@@ -404,10 +405,6 @@ const fileUpload=asyncHandler(async(req,res,next)=>{
     }
 
     const user = await User.findById(userId);
-    if (!isAssignee) {
-        throw new apiError(400, "user not found");
-    }
-
     const isAssignee = task.assignees.some(
         id => id.toString() === userId.toString()
     );
@@ -455,33 +452,40 @@ const fileUpload=asyncHandler(async(req,res,next)=>{
 const fileDelete = asyncHandler(async (req, res) => {
     const { fileId } = req.params;
 
+    console.log("DELETE fileId:", req.params.fileId);
+
+    if (!mongoose.Types.ObjectId.isValid(fileId)) {
+      throw new apiError(400, "Invalid attachment ID");
+    }
+    
+  
     const file = await Attachment.findById(fileId);
     if (!file) {
-        throw new apiError(404, "Attachment not found");
+      throw new apiError(404, "Attachment not found");
     }
-
-    const taskId = file.taskId;
-    const userId = file.performedBy;
-    
+  
+    const userId = req.user._id;
+  
+    if (file.uploadedBy.toString() !== userId.toString()) {
+      throw new apiError(403, "You are not allowed to delete this attachment");
+    }
+  
     await Attachment.findByIdAndDelete(fileId);
-
+  
     const activityLog = await ActivityLog.create({
-        actionType: "ATTACHMENT_DELETED",
-        entityType: "TASK",
-        entityId: taskId,
-        performedBy: userId,
-        taskId: taskId,
-        message: "An attachment was deleted from this task"
+      actionType: "ATTACHMENT_DELETED",
+      entityType: "TASK",
+      entityId: file.taskId,
+      performedBy: authUserId,
+      taskId: file.taskId,
+      message: "An attachment was deleted from this task",
     });
-
-    if (!activityLog) {
-        throw new apiError(500, "Server error in creating activity log");
-    }
-
+  
     return res.status(200).json(
-        new apiResponse(activityLog, 200, "File deleted successfully")
+      new apiResponse(activityLog, 200, "File deleted successfully")
     );
 });
+  
 
 
 

@@ -27,6 +27,6 @@ router.route("/task/:taskId/getcomments").get(verifyJWT, getComments )
 
 //attachments
 router.route("/task/:taskId/attachfile").post(verifyJWT,upload.single("file"),fileUpload);
-router.route("/task/:taskId/deletefile").delete(verifyJWT, fileDelete);
+router.route("/task/file/:fileId/deletefile").delete(verifyJWT, fileDelete);
 
 export default router;

@@ -7,6 +7,10 @@ const attachmentSchema= new Schema({
     public_id:{
         type: String,
     },
+    taskId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task",
+    },
     uploadedBy:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
