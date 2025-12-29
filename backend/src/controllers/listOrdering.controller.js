@@ -7,7 +7,7 @@ import { Board } from "../models/board.model.js";
 
 const reorderList = asyncHandler(async (req, res, next) => {
     const { boardId } = req.params;
-    const { orderIds } = req.body;
+    const { orderedIds } = req.body;
 
     //check member permissions
     const board = await Board.findById(boardId);
@@ -24,12 +24,12 @@ const reorderList = asyncHandler(async (req, res, next) => {
         throw new apiError(403, "You are not a member of this board");
     }
 
-    if (!orderIds) {
-        throw new apiError(400, "no orderIds found");
+    if (!orderedIds) {
+        throw new apiError(400, "no orderedIds found");
     }
 
-    for (let i = 0; i < orderIds.length; i++) {
-        const listId = orderIds[i];
+    for (let i = 0; i < orderedIds.length; i++) {
+        const listId = orderedIds[i];
 
         await List.findOneAndUpdate(
             { _id: listId, boardId: boardId },
@@ -38,7 +38,7 @@ const reorderList = asyncHandler(async (req, res, next) => {
     }
 
     return res.status(200).json(
-        new apiResponse(200, {}, "Lists reordered successfully")
+        new apiResponse({},200, "Lists reordered successfully")
     );
 
 })

@@ -170,6 +170,45 @@ const changeUserPass = asyncHandler(async (req, res, next) => {
 
 })
 
+const updateFullName = asyncHandler(async (req, res, next) => {
+    /**
+     1. take new fullname from req.body
+     2. check if empty
+     3. find user
+     4. update fullname
+     */
+
+    const { fullName } = req.body;
+
+    if (!fullName || fullName.trim() === "") {
+        throw new apiError(400, "fullname cannot be empty");
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        throw new apiError(404, "user not found");
+    }
+
+    // optional: avoid unnecessary DB write
+    if (user.fullName === fullName) {
+        throw new apiError(400, "new fullname is same as old one");
+    }
+
+    user.fullName = fullName;
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json(
+        new apiResponse(
+            {
+                fullName: user.fullName
+            },
+            200,
+            "Full name updated successfully"
+        )
+    );
+});
+
+
 const getUserDetails= asyncHandler(async(req,res,next)=>{
     const userId= req.user?._id;
     const user= await User.findById(userId).select("-password -refreshToken");
@@ -251,6 +290,7 @@ export {
     deleteUser,
     getUserDetails,
     changeUserPass,
+    updateFullName,
     userLogout,
     userLogin,
     createUser,

@@ -11,8 +11,7 @@ const UserDropdown = ({ taskData, members, onRemoveAssignee, onAddAssignee }) =>
       {/* Trigger */}
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="w-full rounded-md border bg-white px-3 py-2 text-sm text-left"
-      >
+        className="w-full rounded-md border bg-white px-3 py-2 text-sm text-left">
         Manage assignees
       </button>
 
@@ -35,13 +34,13 @@ const UserDropdown = ({ taskData, members, onRemoveAssignee, onAddAssignee }) =>
                 <div className="flex gap-1">
                   {!isAssigned ? (
                     <button
-                      onClick={() => onAddAssignee(member._id, taskData._id, taskData.listId)}
+                      onClick={() => onAddAssignee(member._id, taskData)}
                       className="rounded bg-green-500 px-2 py-0.5 text-xs text-white hover:bg-green-600">
                       +
                     </button>
                   ) : (
                     <button
-                      onClick={() => onRemoveAssignee(member._id, taskData._id, taskData.listId)}
+                      onClick={() => onRemoveAssignee(member._id, taskData)}
                       className="rounded bg-red-500 px-2 py-0.5 text-xs text-white hover:bg-red-600">
                       x
                     </button>

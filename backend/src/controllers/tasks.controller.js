@@ -51,6 +51,7 @@ const createTask = asyncHandler(async (req, res) => {
       order: 0,
       listId,
       createdBy: userId,
+      assignees: [req.user?._id]
     });
   
     return res.status(201).json(
@@ -142,7 +143,6 @@ const deleteTask = asyncHandler(async (req, res) => {
         new apiResponse({}, 200, "Task deleted successfully")
     );
 });
-
 
 const updateTaskStatus=asyncHandler(async(req,res,next)=>{
     const {taskId}=req.params;
@@ -304,7 +304,7 @@ const editComment = asyncHandler(async (req, res) => {
     await comment.save();
 
     return res.status(200).json(
-        new apiResponse(200, comment, "Comment updated successfully")
+        new apiResponse(comment, 200,  "Comment updated successfully")
     );
 });
 
@@ -342,7 +342,7 @@ const deleteComment = asyncHandler(async (req, res) => {
     await comment.deleteOne();
 
     return res.status(200).json(
-        new apiResponse(200, {}, "Comment deleted successfully")
+        new apiResponse({}, 200, "Comment deleted successfully")
     );
 });
 
@@ -359,18 +359,14 @@ const getComments = asyncHandler(async (req, res) => {
     const comments = await Comment.find({
         taskId: taskId,
     })
-    .populate(
-        "userId",
-        "-password -refreshToken"
-    )
     .sort({
         createdAt: 1
     });
 
     return res.status(200).json(
         new apiResponse(
-            200,
             comments,
+            200,
             "Comments fetched successfully"
         )
     );

@@ -16,9 +16,10 @@ export const updateBoardApi=(boardId, data)=>{
     return api.patch(`/board/${boardId}/updateboard`, data);
 };
 
-export const deleteBoardApi=(boardId)=>{
-    return api.delete(`/board/${boardId}`);
-};
+export const deleteBoardApi = (boardId) => {
+    console.log("API RECEIVED:", boardId, typeof boardId);
+    return api.delete(`/board/${boardId}/deleteboard`);
+  };
 
 export const addMemberApi=(userId)=>{
     return api.post(`/board/${userId}/addmember`);

@@ -16,10 +16,6 @@ export const deleteTaskApi=(taskId)=>{
     return api.delete(`/task/${taskId}/deletetask`);
 };
 
-export const reorderTaskApi=(listId, data)=>{
-    return api.post(`/list/${listId}/task/reorder`, data);
-};
-
 export const assignMemberApi=(userId)=>{
     return api.post(`/task/${userId}/assign`)
 }
@@ -31,6 +27,27 @@ export const unAssignMemberApi=(userId)=>{
 export const getAllAssigneeApi=(taskId)=>{
     return api.get(`/task/${taskId}/getallassignee`)
 }
+
+export const addCommentApi=(taskId, comment)=>{
+    return api.post(`/task/${taskId}/addcomment`,comment)
+}
+
+export const deleteCommentApi=(commentId)=>{
+    return api.delete(`/comment/${commentId}/deletecomment`);
+}
+
+export const editCommentApi=(content, commentId)=>{
+    return api.patch(`/comment/${commentId}/editcomment`,content);
+}
+
+export const getCommentsApi=(taskId)=>{
+    return api.get(`/task/${taskId}/getcomments`);
+}
+
+export const reorderTasksApi=(listId, orderedIds)=>{
+    return api.post(`/lists/${listId}/tasks/reorder`, {orderedIds})
+}
+
 
 ///////to be done, comments and assigning members
 

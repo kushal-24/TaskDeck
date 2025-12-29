@@ -11,8 +11,9 @@ import { replace, useNavigate } from "react-router-dom";
 import { getAllBoardsApi } from "../Api/board.api";
 
 import BoardGrid from "../Components/BoardGrid.jsx";
-import { logoutApi } from "../Api/auth.api.js";
+import { changeFullName, changePassApi, logoutApi } from "../Api/auth.api.js";
 import { useAuth } from "../Context/Auth.context.jsx";
+import EditProfileDrawer from "../Components/EditProfileDrawer.jsx";
 
 const Boards = () => {
   const [boards, setBoards] = useState([]);
@@ -21,9 +22,11 @@ const Boards = () => {
   const{logout}=useAuth()
   const{ user }=useAuth();
   const navigate = useNavigate();
+  
+  const [activeProfile, setActiveProfile] = useState(null);
+
 
   // ✅ Fetch all boards
-
   useEffect(() => {
     if(user){
       const fetchBoards = async () => {
@@ -42,6 +45,16 @@ const Boards = () => {
     }
     else return <p className="text-4xl">Loading..........</p>
   }, []);
+
+  const updateProfile=async({fullName})=>{
+    const resEdited= await changeFullName({fullName});
+
+  }
+
+  const savePass = async ({ oldPassword, newPassword }) => {
+    await changePassApi({ oldPassword, newPassword });
+  };
+  
 
   if (loading) {
     return <div className="p-6">Loading boards...</div>;
@@ -71,6 +84,7 @@ const Boards = () => {
           Create New Board
         </button>
         <button
+        onClick={()=>setActiveProfile(user)}
           className="rounded-md bg-blue-600 px-4 py-2 text-white cursor-pointer">
           Edit profile
         </button>
@@ -86,6 +100,15 @@ const Boards = () => {
         boards={boards}
         onBoardClick={(boardId) => navigate(`/boards/${boardId}`)}
       />
+      
+      {activeProfile && (
+        <EditProfileDrawer
+        onUpdateProfile={updateProfile}
+        onSavePass={savePass}
+        onClose={()=>setActiveProfile(null)}
+        profile={user}
+        />
+      )}
     </div>
   </>
   );

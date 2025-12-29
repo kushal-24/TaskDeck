@@ -1,6 +1,43 @@
 import React, { useState } from "react";
 import { useAuth } from "../Context/Auth.context";
+import {
+  useSortable,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 //map toh kardiya container ne...ab rendering and display listCard karega
+
+const SortableTask = ({ task, children }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: task._id,
+      data: { type: "TASK" },
+    });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      {/* Drag handle ONLY */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab text-gray-400 text-xs mb-1 select-none"
+      >
+        ⠿
+      </div>
+
+      {/* Clickable content */}
+      {children}
+    </div>
+  );
+};
+
 
 const ListCard = ({ list, tasks, onAddTask, onEditList, onTaskClick }) => {
   const [editable, setEditable] = useState(false);
@@ -25,7 +62,6 @@ const ListCard = ({ list, tasks, onAddTask, onEditList, onTaskClick }) => {
   };
 
   const canAddTask = list.createdBy === user._id;
-
 
   return (
     <div className="w-72 bg-gray-100 rounded-lg p-3 shadow-sm">
@@ -52,35 +88,36 @@ const ListCard = ({ list, tasks, onAddTask, onEditList, onTaskClick }) => {
       </div>
 
       {/* Tasks */}
-      <div className="space-y-2">
+      <SortableContext
+        items={tasks.map((task) => task._id)}
+        strategy={verticalListSortingStrategy}>
         {tasks && tasks.length > 0 ? (
           tasks.map((task) => (
-            <div
-              onClick={() => onTaskClick(task)}
-              key={task._id}
-              className="bg-white rounded-md p-3 shadow-sm cursor-pointer hover:bg-gray-50"
-            >
-              {/* Task Title */}
-              <p className="text-sm text-gray-800">{task.title}</p>
+            <SortableTask key={task._id} task={task}>
+              <div
+                onClick={() => onTaskClick(task)}
+                className="bg-white rounded-md p-3 shadow-sm cursor-pointer hover:bg-gray-50"
+              >
+                <p className="text-sm text-gray-800">{task.title}</p>
 
-              {/* Optional meta info */}
-              <div className="mt-2 text-xs text-gray-500">
-                {/* placeholder for assignee / due date */}
-                Task details
+                <div className="mt-2 text-xs text-gray-500">Task details</div>
               </div>
-            </div>
+            </SortableTask>
           ))
         ) : (
           <p className="text-xs text-gray-400">No tasks</p>
         )}
-      </div>
+      </SortableContext>
 
       {/* Create Task Placeholder */}
-      {canAddTask && (<div
-        onClick={onAddTask}
-        className="mt-3 text-sm text-gray-500 cursor-pointer hover:text-gray-700"> 
-      + Add a task
-      </div>)}
+      {canAddTask && (
+        <div
+          onClick={onAddTask}
+          className="mt-3 text-sm text-gray-500 cursor-pointer hover:text-gray-700"
+        >
+          + Add a task
+        </div>
+      )}
     </div>
   );
 };

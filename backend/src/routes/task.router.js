@@ -4,7 +4,6 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { assignUser, fetchAllAssignees, unassignUser } from "../controllers/asignee.controller.js";
 import { reorderTasks } from "../controllers/listOrdering.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
-import { addMember, removeMember } from "../controllers/boardMembers.controller.js";
 
 const router = Router();
 
@@ -23,8 +22,8 @@ router.route("/tasks/:taskId/status").patch(verifyJWT, updateTaskStatus);//✅
 //comments CRUD
 router.route("/task/:taskId/addcomment").post(verifyJWT, addComment)
 router.route("/comment/:commentId/deletecomment").delete(verifyJWT, deleteComment)
-router.route("/comment/:commentId/editcomment").patch(verifyJWT, deleteComment)
-router.route("/task/:taskId/getcomment").get(verifyJWT, getComments )
+router.route("/comment/:commentId/editcomment").patch(verifyJWT, editComment)
+router.route("/task/:taskId/getcomments").get(verifyJWT, getComments )
 
 //attachments
 router.route("/task/:taskId/attachfile").post(verifyJWT,upload.single("file"),fileUpload);
