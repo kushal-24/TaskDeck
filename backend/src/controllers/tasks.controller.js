@@ -452,7 +452,7 @@ const fileUpload=asyncHandler(async(req,res,next)=>{
 const fileDelete = asyncHandler(async (req, res) => {
     const { fileId } = req.params;
 
-    console.log("DELETE fileId:", req.params.fileId);
+    console.log("DELETE fileId:", fileId);
 
     if (!mongoose.Types.ObjectId.isValid(fileId)) {
       throw new apiError(400, "Invalid attachment ID");
@@ -476,7 +476,7 @@ const fileDelete = asyncHandler(async (req, res) => {
       actionType: "ATTACHMENT_DELETED",
       entityType: "TASK",
       entityId: file.taskId,
-      performedBy: authUserId,
+      performedBy: userId,
       taskId: file.taskId,
       message: "An attachment was deleted from this task",
     });
@@ -485,6 +485,29 @@ const fileDelete = asyncHandler(async (req, res) => {
       new apiResponse(activityLog, 200, "File deleted successfully")
     );
 });
+
+const getAllFiles = asyncHandler(async (req, res, next) => {
+    const { taskId } = req.params;
+
+    if (!taskId) {
+        throw new apiError(400, "no taskId found");
+    }
+
+    const fileIds = await Attachment.find({ taskId });
+
+    if (!fileIds || fileIds.length === 0) {
+        throw new apiError(404, "no files associated with this task");
+    }
+
+    return res.status(200).json(
+        new apiResponse(
+            fileIds,
+            200,
+            "All file IDs associated with the given task fetched successfully"
+        )
+    );
+});
+
   
 
 
@@ -501,7 +524,8 @@ export{
     deleteComment, 
     getComments,
     fileUpload,
-    fileDelete
+    fileDelete,
+    getAllFiles
 };
 
 

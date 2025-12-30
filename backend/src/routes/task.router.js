@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTask, getTasks, updateTask, deleteTask, updateTaskStatus, addComment, getComments, editComment, deleteComment, fileUpload, fileDelete } from "../controllers/tasks.controller.js";
+import { createTask, getTasks, updateTask, deleteTask, updateTaskStatus, addComment, getComments, editComment, deleteComment, fileUpload, fileDelete, getAllFiles } from "../controllers/tasks.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { assignUser, fetchAllAssignees, unassignUser } from "../controllers/asignee.controller.js";
 import { reorderTasks } from "../controllers/listOrdering.controller.js";
@@ -28,5 +28,6 @@ router.route("/task/:taskId/getcomments").get(verifyJWT, getComments )
 //attachments
 router.route("/task/:taskId/attachfile").post(verifyJWT,upload.single("file"),fileUpload);
 router.route("/task/file/:fileId/deletefile").delete(verifyJWT, fileDelete);
+router.route("/task/:taskId/getallfiles").get(verifyJWT, getAllFiles);
 
 export default router;

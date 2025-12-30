@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const EditBoardModal = ({board, onClose, onUpdateBoard}) => {
+const EditBoardModal = ({board, onClose, onUpdateBoard, users, boardMembersz}) => {
     const[title, setTitle]=useState(board.title);
     const[description,setDescription]=useState(board.description);
 

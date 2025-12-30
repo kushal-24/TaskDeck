@@ -23,3 +23,8 @@ export const changePassApi=(password)=>{
 export const changeFullName=(name)=>{
   return api.post("/user/updatefullname",name );
 }
+
+export const getAllUsers=()=>{
+  return api.get("/user/getallusers");
+}
+

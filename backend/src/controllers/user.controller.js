@@ -227,6 +227,25 @@ const getUserDetails= asyncHandler(async(req,res,next)=>{
     )
 })
 
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({})
+    .select("_id fullName email") // ⛔ NEVER send password
+    .sort({ fullName: 1 });
+
+  if (!users || users.length === 0) {
+    throw new apiError(404, "No users found");
+  }
+
+  return res.status(200).json(
+    new apiResponse(
+      users,
+      200,
+      "All users fetched successfully"
+    )
+  );
+});
+
+
 const deleteUser=asyncHandler(async(req,res,next)=>{
     const userId=req.user?._id;
     const deletedUser = await User.findByIdAndDelete(userId);
@@ -295,4 +314,5 @@ export {
     userLogin,
     createUser,
     generateAccessAndRefreshToken,
+    getAllUsers
 }

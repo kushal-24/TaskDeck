@@ -15,8 +15,10 @@ import TaskDetailModal from "../Components/TaskDetailModal.jsx";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/Auth.context.jsx";
 import EditBoardModal from "../Components/EditBoardModal.jsx";
+import { getAllUsers } from "../Api/auth.api.js";
 
 function Board() {
+  const [users,setUsers]=useState([])
   const [board, setBoard] = useState(null);
   const [lists, setLists] = useState([]);
   const [boardMembers, setBoardMembers] = useState([]);
@@ -35,6 +37,11 @@ function Board() {
   useEffect(() => {
     const fetchBLT = async () => {
       try {
+
+        //fetch all users
+        const users= await getAllUsers();
+        setUsers(users.data.data)
+
         //fetch board data
         const resBoard = await getBoardByIdApi(boardId);
         setBoard(resBoard.data.data);
@@ -392,6 +399,8 @@ function Board() {
       {/* Edit board details */}
       {activeBoard && (
         <EditBoardModal
+          users={users}
+          boardMembers={boardMembers}
           board={activeBoard}
           onUpdateBoard={updateBoard}
           onClose={() => setActiveBoard(null)}

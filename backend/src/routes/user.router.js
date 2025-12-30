@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { changeUserPass, createUser, deleteUser, getUserDetails, refreshAccessToken, updateFullName, userLogin, userLogout } from "../controllers/user.controller.js";
+import { changeUserPass, createUser, deleteUser, getAllUsers, getUserDetails, refreshAccessToken, updateFullName, userLogin, userLogout } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 
@@ -13,6 +13,8 @@ router.route("/updatefullname").post(verifyJWT, updateFullName);
 router.route("/myprofile").get(verifyJWT, getUserDetails);
 router.route("/refreshtoken").post(refreshAccessToken);
 router.route("/deleteaccount").delete(verifyJWT, deleteUser);
+router.get("/getallusers", verifyJWT, getAllUsers);
+
 
 
 
