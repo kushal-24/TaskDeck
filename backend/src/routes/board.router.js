@@ -15,7 +15,7 @@ router.route("/getallboards").get(verifyJWT, getAllBoards);
 
 //add members to the board
 router.route("/:boardId/addmember").post(verifyJWT, addMember);
-router.route("/:boardId/removemember").post(verifyJWT, removeMember);
+router.route("/:boardId/user/:userId/removemember").post(verifyJWT, removeMember);
 router.route("/:boardId/getboardmembers").get(verifyJWT, getBoardMembers);
 
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTask, getTasks, updateTask, deleteTask, updateTaskStatus, addComment, getComments, editComment, deleteComment, fileUpload, fileDelete, getAllFiles } from "../controllers/tasks.controller.js";
+import { createTask, getTasks, updateTask, deleteTask, updateTaskStatus, addComment, getComments, editComment, deleteComment, fileUpload, fileDelete, getAllFiles, getTaskById } from "../controllers/tasks.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { assignUser, fetchAllAssignees, unassignUser } from "../controllers/asignee.controller.js";
 import { reorderTasks } from "../controllers/listOrdering.controller.js";
@@ -9,6 +9,7 @@ const router = Router();
 
 router.post("/list/:listId/createtask", verifyJWT, createTask); //✅
 router.get("/list/:listId/gettasks", verifyJWT, getTasks);//✅
+router.get("/task/:taskId/gettask", verifyJWT, getTaskById);//✅
 router.patch("/task/:taskId/updatetask", verifyJWT, updateTask);//✅
 router.delete("/task/:taskId/deletetask", verifyJWT, deleteTask);//✅
 router.route('/task/:taskId/assign').post(verifyJWT, assignUser); //✅

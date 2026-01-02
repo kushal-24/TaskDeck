@@ -8,10 +8,6 @@ export const getTaskApi=(listId)=>{
     return api.get(`/list/${listId}/gettasks`);
 }
 
-export const getTaskByIdApi=(taskId)=>{
-    return api.get(`/task/${taskId}/gettask`);
-}
-
 export const editTaskApi=(data, taskId)=>{
     return api.patch(`/task/${taskId}/updatetask`, data);
 }
@@ -20,12 +16,12 @@ export const deleteTaskApi=(taskId)=>{
     return api.delete(`/task/${taskId}/deletetask`);
 };
 
-export const assignMemberApi=(taskId, userId)=>{
-    return api.post(`/task/${taskId}/assign`, {userId})
+export const assignMemberApi=(userId)=>{
+    return api.post(`/task/${userId}/assign`)
 }
 
-export const unAssignMemberApi=(taskId, userId)=>{
-    return api.post(`/task/${taskId}/unassign`, {userId})
+export const unAssignMemberApi=(userId)=>{
+    return api.post(`/task/${userId}/unassign`)
 }
 
 export const getAllAssigneeApi=(taskId)=>{
@@ -50,10 +46,6 @@ export const getCommentsApi=(taskId)=>{
 
 export const reorderTasksApi=(listId, orderedIds)=>{
     return api.post(`/lists/${listId}/tasks/reorder`, {orderedIds})
-}
-
-export const getAllFilesApi=(taskId)=>{
-    return api.get(`/task/${taskId}/getallfiles`);
 }
 
 

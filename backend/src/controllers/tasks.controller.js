@@ -217,6 +217,45 @@ const updateTaskStatus=asyncHandler(async(req,res,next)=>{
     );
 })
 
+const getTaskById = asyncHandler( async (req, res) => {
+    const { taskId } = req.params;
+    const userId = req.user._id;
+  
+    // 1️⃣ Fetch task with all required relations
+    const task = await Task.findById(taskId)
+      .populate("assignees", "fullName email")
+      .populate("createdBy", "fullName email")
+      .populate("listId", "_id title" )
+  
+    if (!task) {
+      throw new apiError(404, "Task not found");
+    }
+  
+    // 2️⃣ Fetch list → board (permission check)
+    const list = await List.findById(task.listId);
+    if (!list) {
+      throw new apiError(404, "List not found");
+    }
+  
+    const board = await Board.findById(list.boardId);
+    if (!board) {
+      throw new apiError(404, "Board not found");
+    }
+  
+    // 3️⃣ Board membership check
+    const isBoardMember = board.members.some(
+      (id) => id.toString() === userId.toString()
+    );
+  
+    if (!isBoardMember) {
+      throw new apiError(403, "You are not allowed to view this task");
+    }
+  
+    // 4️⃣ Send fully hydrated task
+    return res.status(200).json(
+      new apiResponse(task, 200, "Task fetched successfully")
+    );
+  });
 
 //////////////////////////////////////////////////////////////////// COMMENTS
 
@@ -357,12 +396,7 @@ const getComments = asyncHandler(async (req, res) => {
         throw new apiError(404, "Task not found");
     }
 
-    const comments = await Comment.find({
-        taskId: taskId,
-    })
-    .sort({
-        createdAt: 1
-    });
+    const comments= await Comment.find({ taskId }).populate("userId", "fullName avatar")
 
     return res.status(200).json(
         new apiResponse(
@@ -414,6 +448,8 @@ const fileUpload=asyncHandler(async(req,res,next)=>{
     }
 
     const filePath=req.file.path;
+    const {name}=req.body;
+
     if (!req.file) {
         throw new apiError(400, "No file uploaded");
     }
@@ -428,6 +464,7 @@ const fileUpload=asyncHandler(async(req,res,next)=>{
         url: uploadedFile.secure_url,
         public_id: uploadedFile.public_id,
         taskId: taskId,
+        name: name,
         uploadedBy: userId
     })
 
@@ -495,13 +532,9 @@ const getAllFiles = asyncHandler(async (req, res, next) => {
 
     const fileIds = await Attachment.find({ taskId });
 
-    if (!fileIds || fileIds.length === 0) {
-        throw new apiError(404, "no files associated with this task");
-    }
-
     return res.status(200).json(
         new apiResponse(
-            fileIds,
+            fileIds ? fileIds : [],
             200,
             "All file IDs associated with the given task fetched successfully"
         )
@@ -509,10 +542,6 @@ const getAllFiles = asyncHandler(async (req, res, next) => {
 });
 
   
-
-
-
-
 export{
     deleteTask, 
     updateTask, 
@@ -525,7 +554,8 @@ export{
     getComments,
     fileUpload,
     fileDelete,
-    getAllFiles
+    getAllFiles,
+    getTaskById
 };
 
 

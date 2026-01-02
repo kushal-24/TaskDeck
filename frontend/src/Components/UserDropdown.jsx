@@ -34,13 +34,19 @@ const UserDropdown = ({ taskData, members, onRemoveAssignee, onAddAssignee }) =>
                 <div className="flex gap-1">
                   {!isAssigned ? (
                     <button
-                      onClick={() => onAddAssignee(member._id, taskData)}
+                      onClick={() => onAddAssignee({
+                        task: taskData,
+                        userId: member._id,
+                      })}
                       className="rounded bg-green-500 px-2 py-0.5 text-xs text-white hover:bg-green-600">
                       +
                     </button>
                   ) : (
                     <button
-                      onClick={() => onRemoveAssignee(member._id, taskData)}
+                      onClick={() => onRemoveAssignee({
+                        task: taskData,
+                        userId: member._id,
+                      })}
                       className="rounded bg-red-500 px-2 py-0.5 text-xs text-white hover:bg-red-600">
                       x
                     </button>

@@ -1,9 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../Context/Auth.context";
 import UserDropdown from "./UserDropdown";
 import { useFileUpload } from "../Hooks/FileUpload";
+import {
+  X,
+  Calendar,
+  Paperclip,
+  Edit2,
+  Trash2,
+  Send,
+  Plus,
+  Check,
+} from "lucide-react";
+import { getTaskApi, getTaskByIdApi } from "../Api/task.api";
 
 const TaskDetailModal = ({
+  ownerId,
   task,
   onClose,
   onDeleteTask,
@@ -15,19 +27,31 @@ const TaskDetailModal = ({
   onDeleteComment,
   onEditComment,
   comments,
+  files,
+  onFetchFiles,
 }) => {
   if (!task) return null;
 
-  const [title, setTitle] = useState(task.title);
-  const [description, setDescription] = useState(task.description);
-  const [priority, setPriority] = useState(task.priority);
-  const [dueDate, setDueDate] = useState(task.dueDate);
-  const [editableTask, setEditableTask] = useState(false);
+  const [taskData, setTaskData] = useState(null);
+  useEffect(() => {
+    const fetchFullTask = async () => {
+      try {
+        const res = await getTaskByIdApi(task._id);
+        setTaskData(res.data.data); // populated task
+      } catch (err) {
+        console.error("Failed to fetch task", err);
+      }
+    };
+    fetchFullTask();
+  }, [task._id]);
+
+  const [editMode, setEditMode] = useState(false);
+
   const [editingCommentId, setEditingCommentId] = useState(null);
-  const [content, setContent] = useState("");
-  const [comment, setComment] = useState("");
+  const [content, setContent] = useState(""); //editing content
+  const [comment, setComment] = useState(""); //newComment
+
   const [file, setFile] = useState(null);
-  const [uploadedFile, setUploadedFile] = useState(null);
   const { upload, remove } = useFileUpload();
 
   const { user } = useAuth();
@@ -35,7 +59,7 @@ const TaskDetailModal = ({
     name?.charAt(0).toUpperCase() + name?.slice(1).toLowerCase();
 
   const handleDeleteTask = () => {
-    const canDeleteTask = task.createdBy === user._id;
+    const canDeleteTask = taskData.createdBy === user._id;
     if (!canDeleteTask) {
       alert("You are not allowed to delete this task");
       return;
@@ -44,27 +68,33 @@ const TaskDetailModal = ({
     onClose();
   };
   const startEditTask = () => {
-    const canEditTask = task.createdBy === user._id;
-    if (!canEditTask) {
-      alert("You are not allowed to edit this task");
-      return;
-    }
-    setEditableTask(true);
+    setEditMode(true);
   };
   const saveEditTask = () => {
-    const updatedTask = { title, description, priority, dueDate };
-    onEditTask(updatedTask, task._id, task.listId);
-    setEditableTask(false);
-    onClose();
+    onEditTask(
+      {
+        title: taskData.title,
+        description: taskData.description,
+        priority: taskData.priority,
+        dueDate: taskData.dueDate,
+      },
+      taskData._id,
+      taskData.listId
+    );
+    setEditMode(false);
   };
 
   const handleAddComment = () => {
     if (!comment.trim()) return;
+
     onAddComment({ comment, taskId: task._id });
     setComment("");
   };
   const startEditComment = (c) => {
-    if (c.userId !== user._id) return alert("u cant edit this comment");
+    if (c.userId !== user?._id) {
+      alert("u cant edit this comment");
+      return;
+    }
     setEditingCommentId(c._id);
     setContent(c.content);
   };
@@ -76,280 +106,445 @@ const TaskDetailModal = ({
   };
 
   //attachments///////////
-  const handleFileChange = () => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleAttach = async () => {
+  const handleAttachFile = async () => {
     if (!file) return;
 
     try {
-      const uploaded = await upload(task._id, file);
+      await upload(task._id, file);
 
-      // store full object, not just url
-      setUploadedFile(uploaded);
+      onFetchFiles(task._id);
+
       setFile(null);
     } catch (err) {
       console.error("File upload failed", err);
     }
   };
-
-  const handleDeleteFile = async () => {
-    if (!uploadedFile) return;
-
+  const handleDeleteFile = async (fileId) => {
     try {
-      await remove(uploadedFile._id || uploadedFile.public_id);
-      setUploadedFile(null);
+      await remove(fileId);
+
+      onFetchFiles(task._id);
     } catch (err) {
       console.error("File delete failed", err);
     }
   };
 
+  const priorityStyles = {
+    low: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+    medium: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+    high: "bg-rose-500/20 text-rose-400 border-rose-500/30",
+  };
+
+  const taskEditingAccess =
+    user?._id?.toString() === ownerId?.toString() ||
+    taskData?.assignees?.some(
+      (a) => a._id?.toString() === user?._id?.toString()
+    );
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+        onClick={onClose}
+      />
 
-      {/* Modal */}
-      <div className="relative w-full max-w-5xl rounded-xl bg-white shadow-xl flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          {!editableTask ? (
-            <h2 className="text-lg font-semibold text-gray-800">
-              {task.title}
-            </h2>
-          ) : (
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded border px-2 py-1 text-lg font-semibold"
-            />
-          )}
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            ✕
-          </button>
-        </div>
+      <div className="relative w-full max-w-6xl max-h-[90vh] bg-linear-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-cyan-500/20 overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-br from-cyan-500/5 to-transparent pointer-events-none" />
 
-        {/* BODY */}
-        <div className="grid grid-cols-3 gap-6 px-6 py-5 h-[70vh] min-h-0">
-          {/* LEFT */}
-          <div className="col-span-2 space-y-6 overflow-y-auto pr-2 min-h-0">
-            {/* Meta */}
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-500">Due Date</p>
-                {!editableTask ? (
-                  <p className="font-medium">{task.dueDate}</p>
-                ) : (
-                  <input
-                    type="date"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="rounded border px-2 py-1"
-                  />
-                )}
-              </div>
-
-              <div>
-                <p className="text-gray-500">Priority</p>
-                {!editableTask ? (
-                  <p className="font-medium">{task.priority}</p>
-                ) : (
-                  <select
-                    value={priority}
-                    onChange={(e) => setPriority(e.target.value)}
-                    className="rounded border px-2 py-1"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                )}
-              </div>
-            </div>
-
-            {/* Description */}
-            <div>
-              <p className="mb-1 text-sm font-medium text-gray-700">
-                Description
-              </p>
-              {!editableTask ? (
-                <p className="text-sm text-gray-600">{task.description}</p>
-              ) : (
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full rounded border px-2 py-1 text-sm"
-                />
-              )}
-            </div>
-
-            {/* Assignees */}
-            <div className="flex items-center gap-3">
-              <div className="flex -space-x-2">
-                <div className="h-8 w-8 rounded-full bg-gray-300" />
-                <div className="h-8 w-8 rounded-full bg-gray-400" />
-                <div className="h-8 w-8 rounded-full bg-gray-500" />
-              </div>
-
-              <p className="text-sm font-medium text-gray-700">
-                {task.assignees
-                  .map((id) =>
-                    formatName(members.find((m) => m._id === id)?.fullName)
-                  )
-                  .filter(Boolean)
-                  .join(", ")}
-              </p>
-
-              <UserDropdown
-                taskData={task}
-                members={members}
-                onAddAssignee={onAddAssignee}
-                onRemoveAssignee={onRemoveAssignee}
-              />
-            </div>
-
-            {/* Attachments */}
-            {/* Attachments */}
-            <div>
-              <p className="mb-2 text-sm font-medium text-gray-700">
-                Attachments
-              </p>
-
-              {/* Upload box */}
-              {!uploadedFile && (
-                <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 space-y-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e)=>setFile(e.target.files[0])}
-                  />
-
-                  {file && (
-                    <button
-                      onClick={handleAttach}
-                      className="block mx-auto rounded bg-blue-600 px-3 py-1 text-sm text-white">
-                      Upload file
-                    </button>
-                  )}
-                </div>
-              )}
-
-              {/* Uploaded preview */}
-              {uploadedFile && (
-                <div className="flex items-center justify-between rounded border p-3">
-                  <a
-                    href={uploadedFile.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-sm text-blue-600 underline"
-                  >
-                    View attachment
-                  </a>
-
-                  <button
-                    onClick={handleDeleteFile}
-                    className="text-sm text-red-600 hover:underline"
-                  >
-                    Remove
-                  </button>
-                </div>
-              )}
-            </div>
+        <div className="relative">
+          <div className="flex items-center justify-between p-6 border-b border-cyan-500/20">
+            <h2 className="text-2xl font-bold text-white">Task Details</h2>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
 
-          {/* RIGHT — COMMENTS */}
-          <div className="col-span-1 border-l pl-4 flex flex-col min-h-0">
-            <p className="mb-3 text-sm font-medium text-gray-700">Comments</p>
+          <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                {!editMode ? (
+                  <>
+                    {/* title*/}
+                    <div>
+                      <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">
+                        Task Name
+                      </label>
+                      <h3 className="mt-2 text-xl font-semibold text-white">
+                        {taskData?.title}
+                      </h3>
+                    </div>
 
-            <div className="flex-1 overflow-y-auto space-y-4 pr-2 min-h-0">
-              {comments.map((c) => (
-                <div key={c._id} className="rounded-lg border bg-gray-50 p-3">
-                  {editingCommentId === c._id ? (
-                    <input
-                      value={content}
-                      onChange={(e) => setContent(e.target.value)}
-                      className="text-sm text-gray-800 w-full rounded border px-2 py-1"
-                    />
-                  ) : (
-                    <p className="text-sm text-gray-800">{c.content}</p>
-                  )}
+                    {/* description*/}
+                    <div>
+                      <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">
+                        Description
+                      </label>
+                      <p className="mt-2 text-gray-300 leading-relaxed">
+                        {taskData?.description}
+                      </p>
+                    </div>
 
-                  <div className="mt-2 flex gap-3 text-xs text-gray-500">
-                    {!editingCommentId ? (
-                      <span
-                        onClick={() => startEditComment(c)}
-                        className="cursor-pointer hover:text-gray-700"
+                    {/* priority*/}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">
+                          Priority
+                        </label>
+                        <div className="mt-2">
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
+                              priorityStyles[taskData?.priority]
+                            }`}
+                          >
+                            {taskData?.priority.charAt(0).toUpperCase() +
+                              taskData?.priority.slice(1)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Due date*/}
+                      <div>
+                        <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">
+                          Due Date
+                        </label>
+                        <div className="mt-2 flex items-center gap-2 text-gray-300">
+                          <Calendar className="w-4 h-4 text-cyan-400" />
+                          <span>
+                            {new Date(taskData?.dueDate).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Assigneeee*/}
+                    <div>
+                      <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                        Assignees
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {taskData?.assignees.map((assignee) => (
+                          <div
+                            key={assignee._id}
+                            className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors"
+                          >
+                            <div
+                              className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold`}
+                            >
+                              {assignee.fullName.charAt(0)}
+                            </div>
+                            <span className="text-gray-300 text-sm">
+                              {assignee.fullName}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Attachments*/}
+                    <div>
+                      <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                        Attachments
+                      </label>
+                      <div className="space-y-2">
+                        {Array.isArray(files) && files.length === 0 && (
+                          <p className="text-gray-400 text-sm">
+                            No attachments
+                          </p>
+                        )}
+
+                        {Array.isArray(files) &&
+                          files.map((file) => (
+                            <div
+                              key={file._id}
+                              className="flex items-center justify-between rounded-md bg-white/5 px-3 py-2"
+                            >
+                              <span className="text-sm text-gray-200">
+                                {file.fileName || file.url?.split("/").pop()}
+                              </span>
+                              <button
+                                onClick={() => handleDeleteFile(file._id)}
+                                className="text-red-400 hover:text-red-500"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  /*................................. this is the editable Part ........................... */
+
+                  <>
+                    <div>
+                      <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                        Task Name
+                      </label>
+                      <input
+                        type="text"
+                        value={taskData.title}
+                        onChange={(e) =>
+                          setTaskData({ ...taskData, title: e.target.value })
+                        }
+                        className="w-full px-4 py-3 bg-white/5 border border-cyan-500/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                        Description
+                      </label>
+                      <textarea
+                        value={taskData.description}
+                        onChange={(e) =>
+                          setTaskData({
+                            ...taskData,
+                            description: e.target.value,
+                          })
+                        }
+                        className="w-full px-4 py-3 bg-white/5 border border-cyan-500/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all resize-none"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                          Priority
+                        </label>
+                        <select
+                          value={taskData.priority}
+                          onChange={(e) =>
+                            setTaskData({
+                              ...taskData,
+                              priority: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 bg-white/5 border border-cyan-500/50 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                        >
+                          <option value="low">Low</option>
+                          <option value="medium">Medium</option>
+                          <option value="high">High</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                          Due Date
+                        </label>
+                        <input
+                          type="date"
+                          value={taskData.dueDate}
+                          onChange={(e) =>
+                            setTaskData({
+                              ...taskData,
+                              dueDate: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 bg-white/5 border border-cyan-500/50 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                        Assignees
+                      </label>
+                      <select
+                        multiple
+                        value={taskData.assignees.map((a) => a._id.toString())}
+                        onChange={(e) => {
+                          const selectedIds = Array.from(
+                            e.target.selectedOptions,
+                            (option) => option.value
+                          );
+                          const selected = taskData.assignees.filter((a) =>
+                            selectedIds.includes(a._id)
+                          );
+                          handleEditChange("assignees", selected);
+                        }}
+                        className="w-full px-4 py-3 bg-white/5 border border-cyan-500/50 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                       >
-                        Edit
-                      </span>
-                    ) : (
-                      <span
-                        onClick={() => saveEditComment(c)}
-                        className="cursor-pointer hover:text-gray-700"
+                        {taskData.assignees.map((assignee) => (
+                          <option key={assignee.id} value={assignee.id}>
+                            {assignee.name}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-gray-400 text-xs mt-1">
+                        Hold Ctrl (or Cmd on Mac) to select multiple
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                        Attachments
+                      </label>
+                      <div className="space-y-2">
+                        {files.map((file) => (
+                          <div
+                            key={file._id}
+                            className="flex items-center justify-between gap-3 p-3 bg-white/5 border border-cyan-500/50 rounded-lg hover:bg-white/8 transition-colors"
+                          >
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <Paperclip className="w-4 h-4 text-cyan-400 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-gray-300 text-sm truncate">
+                                  {file.name}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => null}
+                              className="p-2 rounded-lg hover:bg-rose-500/20 transition-colors text-rose-400 hover:text-rose-300 shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        onClick={handleAttachFile}
+                        className="mt-2 w-full px-4 py-2 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/50 rounded-lg text-cyan-400 hover:text-cyan-300 font-medium transition-colors flex items-center justify-center gap-2"
                       >
-                        Save changes
-                      </span>
-                    )}
-                    <span
-                      onClick={() => onDeleteComment(c._id)}
-                      className="cursor-pointer hover:text-red-600"
+                        <Plus className="w-4 h-4" />
+                        Add Attachment
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="flex flex-col h-full">
+                <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-3">
+                  Comments
+                </label>
+                <div className="flex-1 space-y-3 overflow-y-auto max-h-125 pr-2 custom-scrollbar">
+                  {comments.map((comment) => (
+                    <div
+                      key={comment._id}
+                      className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/8 transition-colors"
                     >
-                      Delete
-                    </span>
-                    <span className="font-bold">{c.userId}</span>
+                      <div className="flex items-start gap-3">
+                        {/*comment avatar and everything */}
+                        {/* <div
+                          className={`w-10 h-10 ${comment.color} rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0`}>
+                          {comment.avatar}
+                        </div> */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline gap-2 mb-1">
+                            <span className="font-semibold text-white text-sm">
+                              {comment.userId?.fullName}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {comment.timestamps}
+                            </span>
+                          </div>
+                          <p className="text-gray-300 text-sm leading-relaxed">
+                            {comment.content}
+                          </p>
+                          <div className="flex gap-2 mt-3">
+                            <button className="flex items-center gap-1 px-2 py-1 text-xs text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors">
+                              <Edit2 className="w-3 h-3" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => onDeleteComment(comment._id)}
+                              className="flex items-center gap-1 px-2 py-1 text-xs text-rose-400 hover:bg-rose-500/10 rounded transition-colors"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-white/10">
+                  <div className="flex gap-2">
+                    <input
+                      value={comment}
+                      type="text"
+                      placeholder="Add a comment..."
+                      onChange={(e) => setComment(e.target.value)}
+                      className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                    />
+                    <button
+                      onClick={() => handleAddComment()}
+                      className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <Send className="w-4 h-4" />
+                      Send
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Add Comment */}
-            <div className="mt-3">
-              <textarea
-                rows="2"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Write a comment..."
-                className="w-full resize-none rounded border px-3 py-2 text-sm"
-              />
-              <button
-                onClick={handleAddComment}
-                className="mt-2 rounded bg-blue-100 px-3 py-1 text-sm text-blue-700 hover:bg-blue-200"
-              >
-                Add Comment
-              </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between border-t px-6 py-4">
-          <button
-            onClick={handleDeleteTask}
-            className="rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-200"
-          >
-            Delete Task
-          </button>
-
-          {!editableTask ? (
-            <button
-              onClick={startEditTask}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
-            >
-              Edit Task
-            </button>
-          ) : (
-            <button
-              onClick={saveEditTask}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
-            >
-              Update Task
-            </button>
-          )}
+          <div className="flex gap-3 p-6 border-t border-cyan-500/20 bg-linear-to-r from-slate-900/50 to-slate-800/50">
+            {!editMode ? (
+              <>
+                {taskEditingAccess && (
+                  <button
+                    onClick={() => startEditTask()}
+                    className="flex-1 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center gap-2"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    Edit Task
+                  </button>
+                )}
+                <button
+                  onClick={() => handleDeleteTask()}
+                  className="flex-1 px-6 py-3 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-rose-500/30 flex items-center justify-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete Task
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => saveEditTask()}
+                  className="flex-1 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center gap-2"
+                >
+                  <Check className="w-4 h-4" />
+                  Save Changes
+                </button>
+                <button
+                  onClick={() => {
+                    setEditMode(false);
+                  }}
+                  className="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-gray-500/30 flex items-center justify-center gap-2"
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
+
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(6, 182, 212, 0.3);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(6, 182, 212, 0.5);
+        }
+      `}</style>
     </div>
   );
 };

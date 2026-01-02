@@ -8,6 +8,7 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import CreateList from "./CreateList.jsx";
 
 const SortableList = ({ list, children }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -22,7 +23,7 @@ const SortableList = ({ list, children }) => {
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="w-72">
+    <div ref={setNodeRef} style={style}>
       {/* LIST DRAG HANDLE */}
       <div
         {...attributes}
@@ -39,9 +40,11 @@ const SortableList = ({ list, children }) => {
 };
 
 function ListContainer({
+  ownerId,
   lists,
   tasksByList,
   onCreateTask,
+  onCreateList,
   onEditList,
   onDeleteList,
   boardData,
@@ -52,50 +55,53 @@ function ListContainer({
   const { user } = useAuth();
 
   return (
-    <div className="flex gap-4">
-      <SortableContext
-        items={lists.map((list) => list._id)}
-        strategy={horizontalListSortingStrategy}
-      >
-        {lists.map((list) => {
-          const canDeleteList = user && list.createdBy === user._id;
-
-          return (
-            <SortableList key={list._id} list={list}>
-              <ListCard
-                list={list}
-                tasks={tasksByList[list._id] || []}
-                onAddTask={() => setActiveListId(list._id)}
-                onTaskClick={onTaskClick}
-                onEditList={onEditList}
-                boardData={boardData}
-                onFetchComments={onFetchComments}
-              />
-
-              {activeListId === list._id && (
-                <CreateTask
-                  onClose={() => setActiveListId(null)}
-                  onCreateTask={(taskData) =>
-                    onCreateTask(taskData, list._id)
-                  }
+    <div className="px-6 py-4 flex flex-col">
+      <div className="flex gap-8 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+        <SortableContext
+          items={lists.map((list) => list._id)}
+          strategy={horizontalListSortingStrategy}
+        >
+          {lists.map((list) => {
+            const canDeleteList = user && list.createdBy === user._id;
+            return (
+              <SortableList key={list._id} list={list}>
+                <ListCard
+                  ownerId={ownerId}
+                  list={list}
+                  tasks={tasksByList[list._id] || []}
+                  onAddTask={() => setActiveListId(list._id)}
+                  onTaskClick={onTaskClick}
+                  onEditList={onEditList}
+                  boardData={boardData}
+                  onFetchComments={onFetchComments}
                 />
-              )}
 
-              {canDeleteList && (
-                <button
-                  onClick={() => onDeleteList(list._id)}
-                  className="mt-4 w-full rounded-lg bg-red-600 py-2 text-sm text-white"
-                >
-                  Delete List
-                </button>
-              )}
-            </SortableList>
-          );
-        })}
-      </SortableContext>
+                {activeListId === list._id && (
+                  <CreateTask
+                    onClose={() => setActiveListId(null)}
+                    onCreateTask={(taskData) =>
+                      onCreateTask(taskData, list._id)
+                    }
+                  />
+                )}
+
+                {canDeleteList && (
+                  <button
+                    onClick={() => onDeleteList(list._id)}
+                    className="mt-4 w-full rounded-lg bg-red-600 py-2 text-sm text-white">
+                    Delete List
+                  </button>
+                )}
+              </SortableList>
+            );
+          })}
+        </SortableContext>
+        <div className="w-72 mt-2 shrink-0">
+          <CreateList onCreateList={onCreateList} />
+        </div>
+      </div>
     </div>
   );
 }
-
 
 export default ListContainer;

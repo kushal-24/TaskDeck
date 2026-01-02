@@ -15,9 +15,8 @@ import Board from "./Pages/Board.jsx";
 import Boards from "./Pages/Boards.jsx";
 import NotFound from "./Pages/NotFound.jsx";
 import Signup from "./Pages/Signup.jsx";
-import WelcomePg from "./Pages/WelcomePg.jsx";
-import TaskDetailModal from "./Components/TaskDetailModal.jsx";
 import CreateBoard from "./Pages/CreateBoard.jsx";
+import LandingPage from "./Pages/LandingPage.jsx";
 
 function App() {
   return (
@@ -29,7 +28,7 @@ function App() {
             path="/"
             element={
               <PublicRoute>
-                <WelcomePg />
+                <LandingPage />
               </PublicRoute>
             }
           />

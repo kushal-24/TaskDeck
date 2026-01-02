@@ -10,11 +10,16 @@ import { CSS } from "@dnd-kit/utilities";
 //map toh kardiya container ne...ab rendering and display listCard karega
 
 const SortableTask = ({ task, children }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: task._id,
-      data: { type: "TASK" },
-    });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
+    id: task._id,
+    data: { type: "TASK" },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -27,11 +32,11 @@ const SortableTask = ({ task, children }) => {
       <div
         {...attributes}
         {...listeners}
+        onClick={(e) => e.stopPropagation()} // ⭐ IMPORTANT
         className="cursor-grab text-gray-400 text-xs mb-1 select-none"
       >
         ⠿
       </div>
-
       {/* Clickable content */}
       {children}
     </div>
@@ -39,15 +44,23 @@ const SortableTask = ({ task, children }) => {
 };
 
 
-const ListCard = ({ list, tasks, onAddTask, onEditList, onTaskClick }) => {
+const ListCard = ({
+  list,
+  tasks,
+  onAddTask,
+  onEditList,
+  onTaskClick,
+  ownerId,
+}) => {
   const [editable, setEditable] = useState(false);
   const [title, setTitle] = useState(list.title);
   const { user } = useAuth();
 
-  const startEdit = () => {
-    const canEditList = list.createdBy === user._id;
+  const listOperationsAccess =
+    list.createdBy === user?._id || ownerId === user?._id;
 
-    if (!canEditList) {
+  const startEdit = () => {
+    if (!listOperationsAccess) {
       alert("You are not allowed to edit this list");
       return;
     }
@@ -61,64 +74,63 @@ const ListCard = ({ list, tasks, onAddTask, onEditList, onTaskClick }) => {
     setEditable(false);
   };
 
-  const canAddTask = list.createdBy === user._id;
-
   return (
-    <div className="w-72 bg-gray-100 rounded-lg p-3 shadow-sm">
-      {/* List Title */}
+    <>
+      <div className="shrink-0 w-80 h-150 bg-linear-to-br from-gray-800/40 to-gray-900/40 backdrop-blur-md rounded-xl border border-gray-700/50 shadow-2xl overflow-hidden">
+        {/* List Title */}
 
-      <div className="mb-3">
-        {editable ? (
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={saveEdit}
-            onKeyDown={(e) => e.key === "Enter" && saveEdit()}
-            className="w-full rounded px-2 py-1 text-sm font-semibold outline-none"
-            autoFocus
-          />
-        ) : (
-          <h3
-            onClick={startEdit}
-            className="text-sm font-semibold cursor-pointer"
-          >
-            {list.title}
-          </h3>
-        )}
-      </div>
-
-      {/* Tasks */}
-      <SortableContext
-        items={tasks.map((task) => task._id)}
-        strategy={verticalListSortingStrategy}>
-        {tasks && tasks.length > 0 ? (
-          tasks.map((task) => (
-            <SortableTask key={task._id} task={task}>
-              <div
-                onClick={() => onTaskClick(task)}
-                className="bg-white rounded-md p-3 shadow-sm cursor-pointer hover:bg-gray-50"
-              >
-                <p className="text-sm text-gray-800">{task.title}</p>
-
-                <div className="mt-2 text-xs text-gray-500">Task details</div>
-              </div>
-            </SortableTask>
-          ))
-        ) : (
-          <p className="text-xs text-gray-400">No tasks</p>
-        )}
-      </SortableContext>
-
-      {/* Create Task Placeholder */}
-      {canAddTask && (
-        <div
-          onClick={onAddTask}
-          className="mt-3 text-sm text-gray-500 cursor-pointer hover:text-gray-700"
-        >
-          + Add a task
+        <div className="p-3 min-h-15 border-b border-gray-700/50 bg-black/20">
+          {editable ? (
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={saveEdit}
+              onKeyDown={(e) => e.key === "Enter" && saveEdit()}
+              className="w-full rounded px-2 py-1 font-semibold text-white outline-none"
+              autoFocus/>
+          ) : (
+            <h2
+              onClick={startEdit}
+              className="text-lg font-semibold text-white">
+              {list.title}
+            </h2>
+          )}
         </div>
-      )}
-    </div>
+
+        {/* Tasks */}
+        <div className="p-4 overflow-y-auto h-[calc(100%-60px)] space-y-3">
+          <SortableContext
+            items={tasks.map((task) => task._id)}
+            strategy={verticalListSortingStrategy}>
+            {tasks && tasks.length > 0 ? (
+              tasks.map((task) => (
+                <SortableTask key={task._id} task={task}>
+                  <div
+                    onClick={() => onTaskClick(task)}
+                    className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700/30 hover:border-cyan-500/50 transition-all cursor-pointer">
+                    <p className="text-gray-200 text-sm">{task.title}</p>
+                    <div className="mt-2 text-gray-200 text-xs">
+                      Task details
+                    </div>
+                  </div>
+                </SortableTask>
+              ))
+            ) : (
+              <p className="text-xs text-gray-400">No tasks</p>
+            )}
+          </SortableContext>
+
+          {/* Create Task Placeholder */}
+          {listOperationsAccess && (
+            <div
+              onClick={onAddTask}
+              className="mt-3 text-sm text-gray-500 cursor-pointer hover:text-gray-700">
+              + Add a task
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 

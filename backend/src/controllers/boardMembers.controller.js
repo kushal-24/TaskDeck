@@ -5,7 +5,7 @@ import { Board } from "../models/board.model.js";
 import { User } from "../models/user.model.js"
 
 const addMember=asyncHandler(async(req,res,next)=>{
-    const {boardId}=req.params;
+    const { boardId }=req.params;
     const board= await Board.findById(boardId);
 
     if(!board){
@@ -16,16 +16,14 @@ const addMember=asyncHandler(async(req,res,next)=>{
         throw new apiError(400, "you cant add or remve members as you're not the owner of this board");
     }
 
-    const {userEmail}=req.body;
+    const {userId}=req.body;
 
-    const user= await User.findOne({ email: userEmail });
-
-    const isAlreadyMember= board.members.some((memberId)=>memberId.toString()===user._id.toString());
+    const isAlreadyMember= board.members.some((memberId)=>memberId.toString()===userId.toString());
     if(isAlreadyMember){
         throw new apiError(403,"this user is already a member of the board");
     }
 
-    board.members.push(user._id);
+    board.members.push(userId);
     await board.save();
 
     return res
@@ -46,28 +44,26 @@ const removeMember=asyncHandler(async(req,res,next)=>{
         throw new apiError(400, "you cant add or remove members as you're not the owner of this board");
     }
 
-    const {userEmail}=req.body;
-    if (!user) {
+    const {userId}=req.params;
+    if (!userId) {
         throw new apiError(404, "User not found");
     }
 
-    if (user._id.toString() === board.ownerId.toString()) {
+    if (userId.toString() === board.ownerId.toString()) {
         throw new apiError(400, "Owner cannot be removed from the board");
     }
 
-    const user= await User.findOne({ email: userEmail });
-
-    const isMember= board.members.some((memberId)=>memberId.toString()===user._id.toString());
+    const isMember= board.members.some((memberId)=>memberId.toString()===userId.toString());
     if(!isMember){
         throw new apiError(403,"this user is already not a member of the board");
     }
 
-    board.members= board.members.filter((memberId)=>memberId.toString()!==user._id.toString())
+    board.members= board.members.filter((memberId)=>memberId.toString()!==userId.toString())
     await board.save();
 
     return res
     .json(
-        new apiResponse(board, 200, "member has been added successfully")
+        new apiResponse(board, 200, "member has been removed successfully")
     )
 })
 
