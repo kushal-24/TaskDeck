@@ -10,72 +10,68 @@ import { Board } from "../models/board.model.js";
 const assignUser = asyncHandler(async (req, res) => {
     const { taskId } = req.params;
     const { userId } = req.body;
-
-    const task = await Task.findById(taskId);
-    if (!task) {
-        throw new apiError(404, "Task not found");
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-        throw new apiError(404, "User not found");
-    }
-
-    const list = await List.findById(task.listId);
-    if (!list) {
-        throw new apiError(404, "List not found");
-    }
-
-    const board = await Board.findById(list.boardId);
-    if (!board) {
-        throw new apiError(404, "Board not found");
-    }
-
-    //Board membership check (assigner)
     const assignerId = req.user._id;
-    const isAssignerMember = board.members.some(
-        memberId => memberId.toString() === assignerId.toString()
+  
+    // 1. Task
+    const task = await Task.findById(taskId);
+    if (!task) throw new apiError(404, "Task not found");
+  
+    // 2. List
+    const list = await List.findById(task.listId);
+    if (!list) throw new apiError(404, "List not found");
+  
+    // 3. Board
+    const board = await Board.findById(list.boardId);
+    if (!board) throw new apiError(404, "Board not found");
+  
+    // 4. Assigner must be board member
+    const isAssignerBoardMember = board.members.some(
+      (id) => id.toString() === assignerId.toString()
     );
-    if (!isAssignerMember) {
-        throw new apiError(403, "You are not a member of this board");
+    if (!isAssignerBoardMember) {
+      throw new apiError(403, "You are not a member of this board");
     }
-
+  
+    // 5. Assignee must be board member
     const isUserBoardMember = board.members.some(
-        memberId => memberId.toString() === userId.toString()
+      (id) => id.toString() === userId.toString()
     );
     if (!isUserBoardMember) {
-        throw new apiError(400, "User is not a member of this board");
+      throw new apiError(403, "User is not a member of this board");
     }
-
+  
+    // 6. Prevent duplicate assignment
     const alreadyAssigned = task.assignees.some(
-        id => id.toString() === userId.toString()
+      (id) => id.toString() === userId.toString()
     );
     if (alreadyAssigned) {
-        throw new apiError(400, "User is already assigned to this task");
+      throw new apiError(400, "User already assigned to this task");
     }
-
+  
+    // 7. Assign
     task.assignees.push(userId);
     await task.save();
-
+  
+    // 8. Fetch user only for logging
+    const user = await User.findById(userId);
+  
     const activityLog = await ActivityLog.create({
-        actionType: "USER_ASSIGNED",
-        entityType: "TASK",
-        entityId: task._id,
-        performedBy: assignerId,
-        taskId: task._id,
-        message: `${user.fullName} was assigned to this task`
+      actionType: "USER_ASSIGNED",
+      entityType: "TASK",
+      entityId: task._id,
+      performedBy: assignerId,
+      taskId: task._id,
+      message: `${user.fullName} was assigned to this task`,
     });
-
+  
     return res.status(200).json(
-        new apiResponse(
-            { task, activityLog },
-            200,
-            "User assigned successfully"
-        )
+      new apiResponse(
+        { task, activityLog },
+        200,
+        "User assigned successfully"
+      )
     );
-});
-
-
+  });
 const unassignUser=asyncHandler(async(req,res,next)=>{
     const {taskId}=req.params;
     const {userId}= req.body;
@@ -114,7 +110,6 @@ const unassignUser=asyncHandler(async(req,res,next)=>{
         new apiResponse({task, activityLog},200, "User unassigned successfully")
     );
 })
-
 const fetchAllAssignees=asyncHandler(async(req,res,next)=>{
     const {taskId}=req.params;
 
@@ -127,7 +122,6 @@ const fetchAllAssignees=asyncHandler(async(req,res,next)=>{
     const allAssignees=task.assignees;
 
     return res
-
     .json( new apiResponse( 
         allAssignees,
         200,
