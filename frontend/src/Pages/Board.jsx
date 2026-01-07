@@ -24,13 +24,9 @@ import {
   createTaskApi,
   deleteCommentApi,
   deleteTaskApi,
-  editCommentApi,
-  editTaskApi,
   getAllAssigneeApi,
   getAllFilesApi,
-  getCommentsApi,
   getTaskApi,
-  getTaskByIdApi,
   reorderTasksApi,
   unAssignMemberApi,
 } from "../Api/task.api.js";
@@ -48,7 +44,6 @@ function Board() {
   const [board, setBoard] = useState(null);
   const [lists, setLists] = useState([]);
   const [tasksByList, setTasksByList] = useState({});
-  const [commentsData, setCommentsData] = useState([]);
   const [filesData, setFilesData]=useState([])
 
   const { boardId } = useParams();
@@ -173,20 +168,16 @@ function Board() {
     }));
   };
   const editTask = async (editedData, taskId, listId) => {
-    const res = await editTaskApi(editedData, taskId);
-    const editedTask = res.data.data;
-
     setTasksByList((prev) => ({
       ...prev,
       [listId]: prev[listId].map((task) =>
         task._id === taskId
-          ? { ...task, ...editedTask } // replace edited task
+          ? { ...task, ...editedData } // replace edited task
           : task
       ),
     }));
   };
   const deleteTask = async (taskId, listId) => {
-    await deleteTaskApi(taskId);
     setTasksByList((prev) => ({
       ...prev,
       [listId]: prev[listId].filter((task) => task._id !== taskId),
@@ -196,14 +187,15 @@ function Board() {
 
   //ASSIGNEES...imp/////////////////////////////////////////////////////////////
   const addAssignee = async({task, userId}) => {
-    const res= await assignMemberApi(task._id, userId);
+    const listId= typeof task.listId === "object" ? task.listId._id : task.listId;
+   
     setTasksByList((prev) => ({
       ...prev,
-      [task.listId]: prev[task.listId].map((t) =>
+      [listId]: prev[listId].map((t) =>
         t._id === task._id
           ? {
               ...t,
-              assignees: t.assignees.includes(userId)
+              assignees: t.assignees.some((assignee)=>assignee===userId)
                 ? t.assignees
                 : [...t.assignees, userId],
             }
@@ -215,7 +207,7 @@ function Board() {
       prev && prev._id === task._id
         ? {
             ...prev,
-            assignees: prev.assignees.includes(userId)
+            assignees: prev.assignees.some((assignee)=>assignee===userId)
               ? prev.assignees
               : [...prev.assignees, userId],
           }
@@ -223,12 +215,11 @@ function Board() {
     );
   };
   const removeAssignee = async({task, userId}) => {
-    if (task.createdBy === userId) return alert("this member cant be removed");
-    const res= await unAssignMemberApi(task._id, userId);
+    const listId= typeof task.listId === "object" ? task.listId._id : task.listId;
 
     setTasksByList((prev) => ({
       ...prev,
-      [task.listId]: prev[task.listId].map((t) =>
+      [listId]: prev[listId].map((t) =>
         t._id === task._id
           ? {
               ...t,
@@ -248,30 +239,6 @@ function Board() {
     );
   };
 
-  //COMMENTS SECTION//////////////////////////////////////////////////////////////
-  const fetchComments = async (taskId) => {
-    const resComments = await getCommentsApi(taskId);
-    setCommentsData(resComments.data.data);
-  };
-  const addComment = async ({ comment, taskId }) => {
-    const resComment = await addCommentApi(taskId, { content: comment });
-    const commentData = resComment.data.data.newComment;
-    setCommentsData((prev) => [...prev, commentData]);
-  };
-  const editComment = async ({ content, commentId }) => {
-    const editedComment = await editCommentApi({ content }, commentId);
-    const editedCommentData = editedComment.data.data;
-    setCommentsData((prev) =>
-      prev.map((comment) =>
-        comment._id === commentId ? editedCommentData : comment
-      )
-    );
-  };
-  const deleteComment = async (commentId) => {
-    await deleteCommentApi(commentId);
-    setCommentsData((prev) => prev.filter((comment) => comment._id !== commentId));
-  };
-
   const getAllFiles= async(taskId)=>{
     const res= await getAllFilesApi(taskId);
     setFilesData(res.data.data);
@@ -281,8 +248,8 @@ function Board() {
 
   const handleTaskClick = (task) => {
     setActiveTask(task);
-    fetchComments(task._id);
-    getAllFiles(task._id);
+    // fetchComments(task._id);
+    // getAllFiles(task._id);
   };
 
   //REORDERING//////////////////////////////////////////////////////////////////
@@ -504,7 +471,6 @@ function Board() {
           onCreateTask={addTask}
           onEditList={editList}
           onDeleteList={deleteList}
-          onFetchComments={fetchComments}
           onCreateList={addList}
         />
       </DndContext>
@@ -515,20 +481,15 @@ function Board() {
         <TaskDetailModal
           ownerId={ownerId}
           members={boardMembers}
-          task={activeTask} //to pass the data of the task as a whole to taskDetailModal
+          taskId={activeTask} //to pass the data of the task as a whole to taskDetailModal
           onClose={() => setActiveTask(null)}
           onTaskClick={handleTaskClick}
-          onDeleteTask={deleteTask}
           onEditTask={editTask}
+          onDeleteTask={deleteTask}
           onAddAssignee={addAssignee}
           onRemoveAssignee={removeAssignee}
-          onAddComment={addComment}
-          onDeleteComment={deleteComment}
-          onEditComment={editComment}
-          comments={commentsData}
           files={filesData}
-          onFetchComments={fetchComments}
-          onFetchFiles={getAllFiles}
+         onFetchFiles={getAllFiles}
         />
       )}
 
@@ -536,7 +497,7 @@ function Board() {
       {activeBoard && (
         <EditBoardModal
           users={users}
-          boardMembers={boardMembers}
+          boardMembers={boardMembers} //change this boardMembers to members only , will be easier
           onAddMember={addMember}
           onRemoveMember={removeMember}
           board={activeBoard}

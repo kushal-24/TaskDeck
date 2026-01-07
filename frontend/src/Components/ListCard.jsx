@@ -106,7 +106,7 @@ const ListCard = ({
               tasks.map((task) => (
                 <SortableTask key={task._id} task={task}>
                   <div
-                    onClick={() => onTaskClick(task)}
+                    onClick={() => onTaskClick(task._id)}
                     className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700/30 hover:border-cyan-500/50 transition-all cursor-pointer">
                     <p className="text-gray-200 text-sm">{task.title}</p>
                     <div className="mt-2 text-gray-200 text-xs">

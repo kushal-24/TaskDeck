@@ -39,7 +39,7 @@ const AllUsersDropdown = ({
 
       {/* Dropdown */}
       {open && (
-  <div className="absolute z-50 mt-1 max-h-44 w-full overflow-y-auto rounded-md border bg-white shadow-lg">
+        <div className="absolute z-50 mt-1 max-h-44 w-full overflow-y-auto rounded-md border bg-white shadow-lg">
     
     {users && users.length > 0 ? (
       users.map((user) => {
@@ -60,15 +60,13 @@ const AllUsersDropdown = ({
               {!isMember ? (
                 <button
                   onClick={() => onAddMember({boardId: board._id, userId: user._id})}
-                  className="rounded-md bg-green-500 px-2 py-1 text-xs text-white hover:bg-green-600"
-                >
+                  className="rounded-md bg-green-500 px-2 py-1 text-xs text-white hover:bg-green-600">
                   Add
                 </button>
               ) : (
                 <button
                   onClick={() => onRemoveMember({boardId: board._id, userId: user._id})}
-                  className="rounded-md bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600"
-                >
+                  className="rounded-md bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600">
                   Remove
                 </button>
               )}
