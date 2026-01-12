@@ -1,106 +1,169 @@
 import React, { useState } from "react";
 import AllUsersDropdown from "./AllUsersDropdown";
+import { X, Plus, Trash2 } from "lucide-react";
+import { useAuth } from "../Context/Auth.context";
 
 const EditBoardModal = ({
   board,
   onClose,
   onUpdateBoard,
-  users,           
-  boardMembers,  
+  users,
+  boardMembers,
   onAddMember,
-  onRemoveMember 
+  onRemoveMember,
 }) => {
-  const [title, setTitle] = useState(board.title);
-  const [description, setDescription] = useState(board.description);
+  const [selectedMember, setSelectedMember] = useState("");
+  const [boardData, setBoardData] = useState(board);
+  const {user} =useAuth()
 
   const saveEdit = () => {
-    if (board.title === title && board.description === description)
+    if (
+      boardData.title === board.title &&
+      boardData.description === board.description
+    )
       return alert("no changes");
-    onUpdateBoard({ title, description });
+
+    // const boardData = {
+    //   title: board?.title,
+    //   description: board?.description,
+    //   members: board?.members,
+    // };
+
+    onUpdateBoard(boardData);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      {/* Modal Box */}
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Edit Board
-          </h2>
+    <>
+      <div
+        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+        onClick={onClose}/>
 
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600">
-            ✕
-          </button>
-        </div>
+      <div className="fixed inset-y-0 right-0 z-50 w-96 bg-linear-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl shadow-2xl border-l border-cyan-500/20 overflow-y-auto">
+        <div className="h-full flex flex-col">
+          <div className="flex items-center justify-between p-6 border-b border-cyan-500/20 sticky top-0 bg-slate-900/80 backdrop-blur">
+            <h2 className="text-2xl font-bold text-white">Edit Board</h2>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
 
-        {/* Divider */}
-        <div className="my-4 h-px bg-gray-200" />
+          <div className="flex-1 p-6 space-y-6">
+            <div>
+              <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                Board Title
+              </label>
+              <input
+                type="text"
+                value={boardData.title}
+                onChange={(e) =>
+                  setBoardData({ ...boardData, title: e.target.value })
+                }
+                className="w-full px-4 py-3 bg-white/5 border border-cyan-500/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                placeholder="Enter board title"
+              />
+            </div>
 
-        {/* Board Title */}
-        <div className="mb-4">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Board Title
-          </label>
-          <input
-            value={title}
-            type="text"
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+            <div>
+              <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                Description
+              </label>
+              <textarea
+                value={boardData.description}
+                onChange={(e) =>
+                  setBoardData({ ...boardData, description: e.target.value })
+                }
+                rows={5}
+                className="w-full px-4 py-3 bg-white/5 border border-cyan-500/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all resize-none"
+                placeholder="Enter board description"
+              />
+            </div>
 
-        {/* Board Description */}
-        <div className="mb-6">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Description
-          </label>
-          <textarea
-            value={description}
-            rows="4"
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+            <div>
+              <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-3 block">
+                Board Members
+              </label>
 
-        {/* 👇 NEW: Users dropdown */}
-        <div className="mb-6">
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Add users to board
-          </label>
+              <div className="space-y-3">
+                {boardMembers.length > 0 ? (
+                  <div className="space-y-2">
+                    {boardMembers.map((member) => {
+                      const isOwner= board?.ownerId._id.toString() === member._id.toString();
+                      return (
+                        <div
+                          key={member._id}
+                          className="flex items-center justify-between p-2 bg-white/5 border border-cyan-500/50 rounded-lg hover:bg-white/8 transition-colors">
+                          <span className="text-white font-medium">
+                            {member.fullName}
+                          </span>
+                          {!isOwner ? (
+                            <button
+                              onClick={() =>onRemoveMember(member._id)}
+                              className="p-2 rounded-lg hover:bg-rose-500/20 transition-colors text-rose-400 hover:text-rose-300">
+                              Remove
+                            </button>
+                          ):
+                          (
+                            <button
+                              disabled
+                              className="p-2 rounded-lg text-yellow-600 font-semibold">
+                              Owner
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-gray-400 text-sm">No members added yet</p>
+                )}
 
-          <AllUsersDropdown
-            boardMembers={boardMembers}
-            onAddMember={onAddMember}
-            onRemoveMember={onRemoveMember}
-            board={board}
-            users={users}
-            onSelectUser={(user) => {
-              console.log("Selected user:", user);
-            }}
-          />
-        </div>
+                <div className="flex gap-2 pt-2">
+                  <select
+                    value={selectedMember}
+                    onChange={(e) => setSelectedMember(e.target.value)}
+                    className="flex-1 px-4 py-3 bg-white/5 border border-cyan-500/50 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all">
+                    <option value="">Select a member to add</option>
+                    {users.map((u) => {
+                      console.log(boardMembers)
+                      const isMember= boardMembers.some((m)=> m._id === u._id)
+                      return !isMember ? 
+                      (
+                        <option key={u._id} value={u._id}>
+                          {u.fullName}
+                        </option>
+                      ):
+                      null
+                    })}
+                  </select>
+                  <button
+                    onClick={()=>onAddMember(selectedMember)}
+                    disabled={!selectedMember}
+                    className="px-4 py-3 bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center">
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="rounded-lg border px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">
-            Cancel
-          </button>
-
-          <button
-            onClick={saveEdit}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-            Save Changes
-          </button>
+          <div className="border-t border-cyan-500/20 p-6 bg-linear-to-t from-slate-900/80 to-transparent sticky bottom-0 flex gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-gray-500/30">
+              Cancel
+            </button>
+            <button
+              onClick={() => saveEdit()}
+              className="flex-1 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30">
+              Save Changes
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -44,7 +44,7 @@ const removeMember = asyncHandler(async (req, res, next) => {
         throw new apiError(400, "you cant add or remove members as you're not the owner of this board");
     }
 
-    const { userId } = req.params;
+    const { userId } = req.body;
     if (!userId) {
         throw new apiError(404, "User not found");
     }

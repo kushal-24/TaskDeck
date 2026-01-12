@@ -447,12 +447,11 @@ const fileUpload=asyncHandler(async(req,res,next)=>{
         throw new apiError(403, "You are not an assignee of this task");
     }
 
-    const filePath=req.file.path;
-    const {name}=req.body;
-
     if (!req.file) {
         throw new apiError(400, "No file uploaded");
-    }
+      }
+      
+      const filePath = req.file.path;      
 
     const uploadedFile= await uploadOnCloudinary(filePath);
 
@@ -464,7 +463,7 @@ const fileUpload=asyncHandler(async(req,res,next)=>{
         url: uploadedFile.secure_url,
         public_id: uploadedFile.public_id,
         taskId: taskId,
-        name: name,
+        name: req.file.originalname,
         uploadedBy: userId
     })
 

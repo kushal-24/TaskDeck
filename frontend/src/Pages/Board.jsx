@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DndContext } from "@dnd-kit/core";
 import { Edit2, Trash2, Users } from "lucide-react";
 import LetterAvatar from "../Components/LetterAvatar.jsx";
+import LoadingSpinner from "./LoadingSpinner.jsx";
 import { useParams } from "react-router-dom";
 import {
   addMemberApi,
@@ -45,6 +46,7 @@ function Board() {
   const [lists, setLists] = useState([]);
   const [tasksByList, setTasksByList] = useState({});
   const [filesData, setFilesData]=useState([])
+  const [loading, setLoading]= useState(false);
 
   const { boardId } = useParams();
   const { user } = useAuth();
@@ -55,7 +57,9 @@ function Board() {
 
   //fetching the board details////////////////////////////////////////////////////
   useEffect(() => {
+    
     const fetchBLT = async () => {
+      setLoading(true)
       try {
         //fetch all users
         const users = await getAllUsers();
@@ -76,7 +80,6 @@ function Board() {
 
         //fetch tasks from listId
         const taskMap = {};
-
         await Promise.all(
           listsData.map(async (list) => {
             const resTasks = await getTaskApi(list._id);
@@ -87,26 +90,34 @@ function Board() {
       } catch (error) {
         console.error("Error loading board page", error);
       }
+      finally{
+        setLoading(false);
+      }
     };
     fetchBLT();
   }, [boardId]);
 
   const ownerId = board?.ownerId;
-  const isOwner = board?.ownerId.toString() === user?._id.toString();
-  
+  const isOwner = board?.ownerId._id.toString() === user?._id.toString();
 
   //MEMBER Operations//////////////////////////////////////////////////////////////
-  const addMember = async ({ boardId, userId }) => {
-    await addMemberApi(boardId, userId);
-
+  const addMember = async (userId) => {
+    if(!userId===user._id){
+      alert("only permissions for owners")
+      return;
+    }
+    await addMemberApi(board?._id, userId);
+    
     const res = await getboardMembersApi(boardId);
     setBoardMembers(res.data.data);
   };
 
-  const removeMember = async ({ boardId, userId }) => {
-    if (userId === board.ownerId)
-      return alert("boardOwner is always a member only");
-    await removeMemberApi(userId, boardId);
+  const removeMember = async (userId) => {    
+    if (userId === board?.ownerId){
+      alert("boardOwner is always a member only");
+      return;
+    }
+    await removeMemberApi(boardId, userId);
 
     const res = await getboardMembersApi(boardId);
     setBoardMembers(res.data.data);
@@ -114,17 +125,15 @@ function Board() {
 
   //BOARD operations
   const deleteBoard = async (boardId) => {
-    if (board.ownerId !== user._id) return alert("sorry, ur not permitted to do this action as ur not the board owner");
+    if (board.ownerId._id !== user._id) return alert("sorry, ur not permitted to do this action as ur not the board owner");
     await deleteBoardApi(boardId);
     navigate("/boards", { replace: true });
   };
-  const updateBoard = async ({ title, description }) => {
-    if (board.ownerId !== user._id) return alert("sorry, ur not permitted to do this action as ur not the board owner");
-    board.title = title;
-    board.description = description;
-
-    const resBoard = await updateBoardApi(boardId, board);
-    setBoard(resBoard.data.data);
+  const updateBoard = async (boardData) => {
+    if (!isOwner) return alert("sorry, ur not permitted to do this action as ur not the board owner");
+    await updateBoardApi(boardId, boardData);
+    const res= await getBoardByIdApi(boardId);
+    setBoard(res.data.data);
   };
 
   ////LIST operations/////////////////////////////////////////////////////////////
@@ -354,6 +363,13 @@ function Board() {
 
   return (
     <div className="min-h-screen bg-[#0a0e1a]">
+      
+      {loading && (
+      <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+        <LoadingSpinner message="Fetching board..." size="lg" />
+      </div>
+    )}
+
       {/* ................Navbar........................ */}
       <nav className="relative overflow-hidden bg-[#0a0e1a]">
       {/* subtle background */}
@@ -399,7 +415,7 @@ function Board() {
                 <button className="group relative rounded-lg px-5 py-2.5 text-sm font-medium transition-all">
                   <div className="absolute inset-0 rounded-lg border border-red-500/30 bg-red-500/5 group-hover:bg-red-500/15" />
                   <div 
-                  onClick={()=>deleteBoard(board?._id)}
+                  onClick={()=>deleteBoard(boardId)}
                   className="relative flex items-center gap-2 text-red-400">
                     <Trash2 size={16} />
                     Delete
@@ -447,11 +463,6 @@ function Board() {
                   </div>
                 ))}
               </div>
-
-              {/* Add member */}
-              <button className="ml-2 rounded-full border border-gray-700/30 bg-gray-800/40 px-3 h-7 text-gray-300 transition hover:text-cyan-400">
-                +
-              </button>
             </div>
           </div>
         </div>
@@ -511,7 +522,7 @@ function Board() {
 
 export default Board;
 
-// (
+
 //   <div className="min-h-screen bg-[#0a0e1a]">
 
 //     {/* Navbar */}
@@ -603,4 +614,4 @@ export default Board;
 //     </div>
 //   </main>
 //   </div>
-// );
+// )

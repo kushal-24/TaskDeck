@@ -25,8 +25,8 @@ export const addMemberApi=(boardId, userId)=>{
     return api.post(`/board/${boardId}/addmember`, {userId});
 }
 
-export const removeMemberApi=(userId, boardId)=>{
-    return api.post(`/board/${boardId}/user/${userId}/removemember`);
+export const removeMemberApi=(boardId, userId)=>{
+    return api.post(`/board/${boardId}/removemember`, {userId});
 }
 
 export const getboardMembersApi=(boardId)=>{

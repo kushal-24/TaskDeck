@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../Context/Auth.context";
 import { useFileUpload } from "../Hooks/FileUpload";
+import LoadingSpinner from "../Pages/LoadingSpinner";
 import {
   X,
   Calendar,
@@ -20,7 +21,6 @@ import {
   deleteTaskApi,
   editCommentApi,
   editTaskApi,
-  getAllAssigneeApi,
   getAllFilesApi,
   getCommentsApi,
   getTaskByIdApi,
@@ -41,10 +41,12 @@ const TaskDetailModal = ({
   const [taskData, setTaskData] = useState(null);
   const [taskComments, setTaskComments] = useState([]);
   const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchFullTaskContents = async () => {
       try {
+        setLoading(true);
         //task
         const resTask = await getTaskByIdApi(taskId);
         setTaskData(resTask.data.data); // populated task with assignees and their names
@@ -56,14 +58,15 @@ const TaskDetailModal = ({
         //files
         const resFiles = await getAllFilesApi(taskId);
         setFiles(resFiles.data.data);
-        
+
         console.log("members hai ye: ", members);
         console.log("assignees hai ye: ", resTask.data.data.assignees);
         console.log("these are all the files:", resFiles.data.data);
-        
-        
       } catch (err) {
         console.error("Failed to fetch task or comments or files ", err);
+      }
+      finally{
+        setLoading(false);
       }
     };
     fetchFullTaskContents();
@@ -102,9 +105,9 @@ const TaskDetailModal = ({
       priority: taskData.priority,
       dueDate: taskData.dueDate,
     };
-    
+
     await editTaskApi(payload, taskData._id);
-    
+
     const resTask = await getTaskByIdApi(taskData._id);
     setTaskData(resTask.data.data);
     onEditTask(resTask.data.data, taskData._id, taskData.listId._id);
@@ -114,9 +117,9 @@ const TaskDetailModal = ({
   //Comments
   const addComment = async (comment, taskId) => {
     if (!comment.trim()) return;
-    
+
     await addCommentApi(taskId, { content: comment });
-    const resComments= await getCommentsApi(taskData._id)
+    const resComments = await getCommentsApi(taskData._id);
     setTaskComments(resComments.data.data);
     setComment("");
   };
@@ -124,10 +127,8 @@ const TaskDetailModal = ({
     const res = await editCommentApi({ content }, commentId);
     const editedComment = res.data.data;
     setTaskComments((prev) =>
-      prev.map((c) =>
-        c._id === commentId ? {...c, content} : c
-      )
-    );    
+      prev.map((c) => (c._id === commentId ? { ...c, content } : c))
+    );
   };
   const deleteComment = async (commentId) => {
     await deleteCommentApi(commentId);
@@ -136,7 +137,6 @@ const TaskDetailModal = ({
     );
   };
   const startEditComment = (c) => {
-    
     if (c.userId._id !== user?._id) {
       alert("u cant edit this comment");
       return;
@@ -151,12 +151,13 @@ const TaskDetailModal = ({
   };
 
   //attachments///////////
-  const handleAttachFile = async () => {
+  const handleAttachFile = async (file) => {
     if (!file) return;
 
     try {
       await upload(taskData._id, file);
-      onFetchFiles(taskData);
+      setFiles((prev)=>[...prev, file ])
+      await onFetchFiles(taskData._id);
       setFile(null);
     } catch (err) {
       console.error("File upload failed", err);
@@ -171,7 +172,7 @@ const TaskDetailModal = ({
     }
   };
 
-  const addAssigneeHandler= async (member)=>{
+  const addAssigneeHandler = async (member) => {
     setTaskData((prev) => ({
       ...prev,
       assignees: [...prev.assignees, member],
@@ -179,17 +180,17 @@ const TaskDetailModal = ({
 
     await assignMemberApi(taskData._id, member._id);
     onAddAssignee({ task: taskData, userId: member._id });
-  }
+  };
 
-  const removeAssigneeHandler= async(member)=>{
-    setTaskData((prev)=>({
+  const removeAssigneeHandler = async (member) => {
+    setTaskData((prev) => ({
       ...prev,
-      assignees: prev.assignees.filter((a)=>a._id !==member._id)
-    }))
+      assignees: prev.assignees.filter((a) => a._id !== member._id),
+    }));
 
     await unAssignMemberApi(taskData._id, member._id);
-    onRemoveAssignee({task: taskData, userId: member._id});
-  }
+    onRemoveAssignee({ task: taskData, userId: member._id });
+  };
 
   const priorityStyles = {
     low: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
@@ -207,8 +208,12 @@ const TaskDetailModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-md"
-        onClick={onClose}
-      />
+        onClick={onClose}/>
+        {loading && (
+      <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+        <LoadingSpinner message="Fetching task..." size="md" />
+      </div>
+    )}
 
       <div className="relative w-full max-w-6xl max-h-[90vh] bg-linear-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-cyan-500/20 overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-br from-cyan-500/5 to-transparent pointer-events-none" />
@@ -259,7 +264,8 @@ const TaskDetailModal = ({
                           <span
                             className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
                               priorityStyles[taskData?.priority]
-                            }`}>
+                            }`}
+                          >
                             {taskData?.priority.charAt(0).toUpperCase() +
                               taskData?.priority.slice(1)}
                           </span>
@@ -289,9 +295,11 @@ const TaskDetailModal = ({
                         {taskData?.assignees.map((assignee) => (
                           <div
                             key={assignee._id}
-                            className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors">
+                            className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors"
+                          >
                             <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold`}>
+                              className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold`}
+                            >
                               {assignee?.fullName?.charAt(0)}
                             </div>
                             <span className="text-gray-300 text-sm">
@@ -380,7 +388,8 @@ const TaskDetailModal = ({
                               priority: e.target.value,
                             })
                           }
-                          className="w-full px-4 py-3 bg-white/5 border border-cyan-500/50 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all">
+                          className="w-full px-4 py-3 bg-white/5 border border-cyan-500/50 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                        >
                           <option value="low">Low</option>
                           <option value="medium">Medium</option>
                           <option value="high">High</option>
@@ -419,39 +428,45 @@ const TaskDetailModal = ({
                       <div className="space-y-2 rounded-lg border border-cyan-500/50 bg-white/5 p-3">
                         {members.length > 0 ? (
                           members.map((member) => {
-                            const isAssignee= taskData.assignees.some((assignee)=> assignee._id===member._id);
+                            const isAssignee = taskData.assignees.some(
+                              (assignee) => assignee._id === member._id
+                            );
                             return (
                               <div
                                 key={member._id}
-                                className="flex items-center justify-between rounded-md bg-white/5 px-3 py-2">
+                                className="flex items-center justify-between rounded-md bg-white/5 px-3 py-2"
+                              >
                                 {/* Assignee name */}
                                 <span className="text-sm text-white">
                                   {member.fullName}
                                 </span>
-  
+
                                 {/* Action buttons */}
                                 <div className="flex gap-2">
                                   {!isAssignee && (
                                     <button
-                                    type="button"
-                                    onClick={()=>addAssigneeHandler(member)}
-                                    className="rounded-md bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/30 transition">
-                                    Add
-                                  </button>                
-                                  )}
-  
-                                  {isAssignee &&(
-                                    <button
-                                    type="button"
-                                    onClick={()=>removeAssigneeHandler(member)}
-                                    className="rounded-md bg-rose-500/20 px-3 py-1 text-xs font-semibold text-rose-400 hover:bg-rose-500/30 transition">
-                                    Remove
-                                  </button>
+                                      type="button"
+                                      onClick={() => addAssigneeHandler(member)}
+                                      className="rounded-md bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/30 transition"
+                                    >
+                                      Add
+                                    </button>
                                   )}
 
+                                  {isAssignee && (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        removeAssigneeHandler(member)
+                                      }
+                                      className="rounded-md bg-rose-500/20 px-3 py-1 text-xs font-semibold text-rose-400 hover:bg-rose-500/30 transition"
+                                    >
+                                      Remove
+                                    </button>
+                                  )}
                                 </div>
                               </div>
-                            )
+                            );
                           })
                         ) : (
                           <p className="text-xs text-gray-400">
@@ -473,7 +488,8 @@ const TaskDetailModal = ({
                         {files.map((file) => (
                           <div
                             key={file._id}
-                            className="flex items-center justify-between gap-3 p-3 bg-white/5 border border-cyan-500/50 rounded-lg hover:bg-white/8 transition-colors">
+                            className="flex items-center justify-between gap-3 p-3 bg-white/5 border border-cyan-500/50 rounded-lg hover:bg-white/8 transition-colors"
+                          >
                             <div className="flex items-center gap-3 flex-1 min-w-0">
                               <Paperclip className="w-4 h-4 text-cyan-400 shrink-0" />
                               <div className="flex-1 min-w-0">
@@ -484,17 +500,25 @@ const TaskDetailModal = ({
                             </div>
                             <button
                               onClick={() => null}
-                              className="p-2 rounded-lg hover:bg-rose-500/20 transition-colors text-rose-400 hover:text-rose-300 shrink-0">
+                              className="p-2 rounded-lg hover:bg-rose-500/20 transition-colors text-rose-400 hover:text-rose-300 shrink-0"
+                            >
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         ))}
                       </div>
                       <input
-                      type="file"
-                      placeholder="wthhhhh"
+                        type="file"
+                        onChange={(e)=>setFile(e.target.files[0])}
+                        placeholder="..."
                         className="mt-2 w-full px-4 py-2 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/50 rounded-lg text-cyan-400 hover:text-cyan-300 font-medium transition-colors flex items-center justify-center gap-2"
                       />
+                      <button
+                        onClick={()=>handleAttachFile(file)}
+                        disabled={!file}
+                        className="flex-1 px-2 py-2 mt-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg">
+                        Upload file
+                      </button>
                     </div>
                   </>
                 )}
@@ -508,7 +532,8 @@ const TaskDetailModal = ({
                   {taskComments.map((c) => (
                     <div
                       key={c._id}
-                      className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/8 transition-colors">
+                      className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/8 transition-colors"
+                    >
                       <div className="flex items-start gap-3">
                         {/*comment avatar and everything */}
                         {/* <div
@@ -530,19 +555,22 @@ const TaskDetailModal = ({
                               <input
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
-                                className="text-gray-300 text-sm leading-relaxed outline-none"/>
+                                className="text-gray-300 text-sm leading-relaxed outline-none"
+                              />
                               <div className="flex gap-2 mt-3">
                                 <button
                                   onClick={() =>
                                     saveEditComment(content, c._id)
                                   }
-                                  className="flex items-center gap-1 px-2 py-1 text-xs text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors">
+                                  className="flex items-center gap-1 px-2 py-1 text-xs text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors"
+                                >
                                   <Check className="w-4 h-4" />
                                   Save
                                 </button>
                                 <button
                                   onClick={() => deleteComment(c._id)}
-                                  className="flex items-center gap-1 px-2 py-1 text-xs text-rose-400 hover:bg-rose-500/10 rounded transition-colors">
+                                  className="flex items-center gap-1 px-2 py-1 text-xs text-rose-400 hover:bg-rose-500/10 rounded transition-colors"
+                                >
                                   <Trash2 className="w-3 h-3" />
                                   Delete
                                 </button>
@@ -556,13 +584,15 @@ const TaskDetailModal = ({
                               <div className="flex gap-2 mt-3">
                                 <button
                                   onClick={() => startEditComment(c)}
-                                  className="flex items-center gap-1 px-2 py-1 text-xs text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors">
+                                  className="flex items-center gap-1 px-2 py-1 text-xs text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors"
+                                >
                                   <Edit2 className="w-3 h-3" />
                                   Edit
                                 </button>
                                 <button
                                   onClick={() => deleteComment(c._id)}
-                                  className="flex items-center gap-1 px-2 py-1 text-xs text-rose-400 hover:bg-rose-500/10 rounded transition-colors">
+                                  className="flex items-center gap-1 px-2 py-1 text-xs text-rose-400 hover:bg-rose-500/10 rounded transition-colors"
+                                >
                                   <Trash2 className="w-3 h-3" />
                                   Delete
                                 </button>
@@ -586,7 +616,8 @@ const TaskDetailModal = ({
                     />
                     <button
                       onClick={() => addComment(comment, taskId)}
-                      className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition-colors flex items-center gap-2">
+                      className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition-colors flex items-center gap-2"
+                    >
                       <Send className="w-4 h-4" />
                       Send
                     </button>
@@ -602,14 +633,16 @@ const TaskDetailModal = ({
                 {taskEditingAccess && (
                   <button
                     onClick={() => startEditTask()}
-                    className="flex-1 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center gap-2">
+                    className="flex-1 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center gap-2"
+                  >
                     <Edit2 className="w-4 h-4" />
                     Edit Task
                   </button>
                 )}
                 <button
                   onClick={() => handleDeleteTask()}
-                  className="flex-1 px-6 py-3 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-rose-500/30 flex items-center justify-center gap-2">
+                  className="flex-1 px-6 py-3 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-rose-500/30 flex items-center justify-center gap-2"
+                >
                   <Trash2 className="w-4 h-4" />
                   Delete Task
                 </button>
@@ -618,7 +651,8 @@ const TaskDetailModal = ({
               <>
                 <button
                   onClick={() => saveEditTask()}
-                  className="flex-1 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center gap-2">
+                  className="flex-1 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center gap-2"
+                >
                   <Check className="w-4 h-4" />
                   Save Changes
                 </button>
@@ -626,7 +660,8 @@ const TaskDetailModal = ({
                   onClick={() => {
                     setEditMode(false);
                   }}
-                  className="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-gray-500/30 flex items-center justify-center gap-2">
+                  className="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-gray-500/30 flex items-center justify-center gap-2"
+                >
                   Cancel
                 </button>
               </>

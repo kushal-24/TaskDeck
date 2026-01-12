@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const EditProfileDrawer = ({onClose, onUpdateProfile, profile, onSavePass}) => {
-    const [fullName, setFullName] = useState(profile.fullName);
+const [fullName, setFullName] = useState(profile.fullName);
 const [oldPassword, setOldPassword] = useState("");
 const [newPassword, setNewPassword] = useState("");
 const [changePass, setChangePass] = useState(false);
@@ -137,5 +137,4 @@ const onSave = () => {
     );
   };
   
-  export default EditProfileDrawer;
-  
+  export default EditProfileDrawer;  

@@ -9,12 +9,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllBoardsApi } from "../Api/board.api";
-import { Bell, User, Kanban } from "lucide-react";
+import { Bell, Kanban, LogOut } from "lucide-react";
 
 import BoardGrid from "../Components/BoardGrid.jsx";
-import { changeFullName, changePassApi, logoutApi, getAllUsers } from "../Api/auth.api.js";
+import { changeFullName, changePassApi, getAllUsers } from "../Api/auth.api.js";
 import { useAuth } from "../Context/Auth.context.jsx";
 import EditProfileDrawer from "../Components/EditProfileDrawer.jsx";
+import CreateBoard from "./CreateBoard.jsx";
 
 const Boards = () => {
   const activityLogs = [
@@ -51,8 +52,9 @@ const Boards = () => {
   ];
 
   const [boards, setBoards] = useState([]);
+  const [createBoard, setCreateBoard] = useState(false);
   const [users,setUsers]=useState([])
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { logout } = useAuth();
   const { user } = useAuth();
@@ -65,6 +67,7 @@ const Boards = () => {
     if (user) {
       const fetchBoardsAndUsers = async () => {
         try {
+          setLoading(true)
           const resBoards = await getAllBoardsApi();
           console.log(resBoards.data.data);
           setBoards(resBoards.data.data || []);
@@ -89,6 +92,11 @@ const Boards = () => {
   const savePass = async ({ oldPassword, newPassword }) => {
     await changePassApi({ oldPassword, newPassword });
   };
+
+  const onCreateHandler= async()=>{
+    const res= await getAllBoardsApi()
+    setBoards(res.data.data);
+  }
 
   if (loading) {
     return <div className="p-6">Loading boards...</div>;
@@ -121,8 +129,10 @@ const Boards = () => {
                   <Bell className="w-5 h-5 text-gray-300 group-hover:text-cyan-400 transition-colors" />
                 </button>
 
-                <button className="p-1.5 rounded-xl backdrop-blur-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300 group">
-                  <User className="w-5 h-5 text-gray-300 group-hover:text-cyan-400 transition-colors" />
+                <button 
+                onClick={()=>logoutHandler()}
+                className="p-1.5 rounded-xl backdrop-blur-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300 group">
+                  <LogOut className="w-5 h-5 text-gray-300 group-hover:text-cyan-400 transition-colors" />
                 </button>
               </div>
             </div>
@@ -132,13 +142,15 @@ const Boards = () => {
         <div className="pt-24 pb-12 px-6 max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">
-              Welcome back, Kushal
+              Welcome back {user.fullName}
             </h1>
             <p className="text-gray-400">Here's what you've been working on</p>
           </div>
 
           <div className="m-3 flex justify-end">
-            <button className="relative flex items-center gap-2 border border-white/10 rounded-xl px-6 py-3 text-sm font-semibold text-cyan-400  bg-white/5 backdrop-blur-md hover:bg-cyan-400/10 hover:border-cyan-400/60 transition-all duration-300">
+            <button 
+            onClick={()=>setCreateBoard(true)}
+            className="relative flex items-center gap-2 border border-white/10 rounded-xl px-6 py-3 text-sm font-semibold text-cyan-400  bg-white/5 backdrop-blur-md hover:bg-cyan-400/10 hover:border-cyan-400/60 transition-all duration-300">
               <span className="text-lg leading-none">+</span>
               Create New Board
             </button>
@@ -180,6 +192,12 @@ const Boards = () => {
               onSavePass={savePass}
               onClose={() => setActiveProfile(null)}
               profile={user}
+            />
+          )}
+          {createBoard && (
+            <CreateBoard
+            setActiveBoard={setCreateBoard}
+            onCreateBoard={onCreateHandler}
             />
           )}
         </div>

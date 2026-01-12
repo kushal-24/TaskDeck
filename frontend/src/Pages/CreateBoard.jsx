@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createBoardApi } from "../Api/board.api";
+import LoadingSpinner from "./LoadingSpinner";
+import { X } from "lucide-react";
 
-const CreateBoard = () => {
+const CreateBoard = ({ setActiveBoard, onCreateBoard }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -10,63 +12,92 @@ const CreateBoard = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     if (!title || !description) {
       setError("All fields are required");
       return;
     }
-
     setLoading(true);
-
     try {
-      const res = await createBoardApi({ title, description });
-
-      const newBoardId = res.data.data._id;
-      
-      //go back to boards main pg
+      await createBoardApi({ title, description });
+      onCreateBoard();
       navigate("/boards");
     } catch (err) {
       setError("Failed to create board");
     } finally {
       setLoading(false);
+      setActiveBoard(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 flex justify-center">
-      <div className="w-full max-w-md bg-white p-6 rounded shadow">
-        <h2 className="text-xl font-bold mb-4">Create New Board</h2>
+    <>
+      <div
+        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-center justify-center"
+        onClick={() => setActiveBoard(false)}
+      />
 
-        {error && <p className="text-red-500 mb-3">{error}</p>}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Board title"
-            className="w-full border px-3 py-2 rounded"
-          />
-
-          <input
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Description"
-            className="w-full border px-3 py-2 rounded"
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded"
-          >
-            {loading ? "Creating..." : "Create Board"}
-          </button>
-        </form>
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md bg-linear-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl shadow-2xl border border-cyan-500/20 rounded-xl overflow-hidden">
+      {loading && (
+      <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+        <LoadingSpinner message="Creating board..." size="md" />
       </div>
-    </div>
-  );
+    )}
+        <div className="flex items-center justify-between p-6 border-b border-cyan-500/20">
+          <h2 className="text-2xl font-bold text-white">Create Board</h2>
+          <button
+            onClick={() => setActiveBoard(false)}
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-5">
+          <div>
+            <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+              Board Title
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-2.5 bg-white/5 border border-cyan-500/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+              placeholder="Enter board title"
+              autoFocus
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+              Description
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+              className="w-full px-4 py-2.5 bg-white/5 border border-cyan-500/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all resize-none"
+              placeholder="Enter board description"
+            />
+          </div>
+        </div>
+
+        <div className="border-t border-cyan-500/20 p-6 bg-linear-to-t from-slate-900/80 to-transparent flex gap-3">
+          <button
+            onClick={() => setActiveBoard(false)}
+            className="flex-1 px-4 py-2.5 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-gray-500/30">
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading || !title.trim()}
+            className="flex-1 px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center gap-2">
+            Create
+          </button>
+        </div>
+      </div>
+    </>)
+
 };
 
 export default CreateBoard;

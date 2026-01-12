@@ -38,6 +38,8 @@ const getBoard = asyncHandler(async (req, res) => {
     const { boardId } = req.params;
 
     const board = await Board.findById(boardId)
+    .populate("members", "fullName email")
+    .populate("ownerId", "fullName")
 
     if (!board) {
         throw new apiError(400, "no such board exists, sorry");
