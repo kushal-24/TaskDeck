@@ -81,8 +81,8 @@ const userLogin = asyncHandler(async (req, res, next) => {
 
     const options = {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: true,        // ✅ REQUIRED on HTTPS
+        sameSite: "None", 
     }
 
     return res
