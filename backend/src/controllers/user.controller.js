@@ -208,7 +208,6 @@ const updateFullName = asyncHandler(async (req, res, next) => {
     );
 });
 
-
 const getUserDetails= asyncHandler(async(req,res,next)=>{
     const userId= req.user?._id;
     const user= await User.findById(userId).select("-password -refreshToken");
@@ -244,7 +243,6 @@ const getAllUsers = asyncHandler(async (req, res) => {
     )
   );
 });
-
 
 const deleteUser=asyncHandler(async(req,res,next)=>{
     const userId=req.user?._id;

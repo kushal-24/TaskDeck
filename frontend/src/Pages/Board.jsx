@@ -364,7 +364,7 @@ function Board() {
   return (
     <div className="min-h-screen bg-[#0a0e1a]">
       
-      {loading && (
+    {loading && (
       <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
         <LoadingSpinner message="Fetching board..." size="lg" />
       </div>

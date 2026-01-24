@@ -25,17 +25,17 @@ const userSchema = new Schema({
     googleId: {
         type: String,
     },
-
 }, { timestamps: true })
 
 userSchema.pre("save", async function () {
     if (!this.isModified("password")) return;
 
-    this.password = await bcrypt.hash(this.password, 10);
+    this.password = bcrypt.hash(this.password, 10);
 });
 
 userSchema.methods.isPassCorrect = async function (password) {
     return await bcrypt.compare(password, this.password);
+    
 }
 
 userSchema.methods.generateAccessToken = async function () {

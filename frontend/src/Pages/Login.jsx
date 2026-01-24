@@ -7,6 +7,7 @@ Handle redirect to /boards
 import React, { useState } from "react";
 import { useAuth } from "../Context/Auth.context";
 import {useNavigate} from "react-router-dom"
+import LoadingSpinner from "./LoadingSpinner";
 
 
 const Login = () => {
@@ -22,6 +23,7 @@ const Login = () => {
     setLoading(true);
 
     try {
+      setLoading(true)
       await login({ email, password });
       navigate('/boards', { replace: true })
     } catch (error) {

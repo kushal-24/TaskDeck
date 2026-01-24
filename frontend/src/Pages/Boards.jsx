@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllBoardsApi } from "../Api/board.api";
 import { Bell, Kanban, LogOut } from "lucide-react";
+import LoadingSpinner from "./LoadingSpinner.jsx";
 
 import BoardGrid from "../Components/BoardGrid.jsx";
 import { changeFullName, changePassApi, getAllUsers } from "../Api/auth.api.js";
@@ -98,10 +99,6 @@ const Boards = () => {
     setBoards(res.data.data);
   }
 
-  if (loading) {
-    return <div className="p-6">Loading boards...</div>;
-  }
-
   if (error) {
     return <div className="p-6 text-red-500">{error}</div>;
   }
@@ -114,7 +111,11 @@ const Boards = () => {
   return (
     <>
       <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
-        
+      {loading && (
+      <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+        <LoadingSpinner message="Fetching board..." size="lg" />
+      </div>
+    )}
         {/*............. Navbar............... */}
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[85%] max-w-4xl"> 
           <nav className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl shadow-2xl px-5 py-2.5">

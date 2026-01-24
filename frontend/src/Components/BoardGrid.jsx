@@ -16,14 +16,14 @@ const BoardGrid = ({users, boards, onBoardClick }) => {
           key={board._id}
           onClick={() => onBoardClick(board._id)}
             className="group cursor-pointer backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10">
-            <div className="relative h-36 overflow-hidden">
+            {/* <div className="relative h-36 overflow-hidden">
               <img
                 src={board.image}
                 alt={board.title}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
               <div className="absolute inset-0 bg-linear-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
-            </div>
-  
+            </div> */}
+
             <div className="p-4">
               <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-400 transition-colors">
                 {board.title}

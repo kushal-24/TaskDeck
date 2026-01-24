@@ -352,19 +352,16 @@ const deleteComment = asyncHandler(async (req, res) => {
     const { commentId } = req.params;
     const userId = req.user._id;
 
-    // 1️⃣ Find the comment
     const comment = await Comment.findById(commentId);
     if (!comment) {
         throw new apiError(404, "Comment not found");
     }
 
-    // 2️⃣ Fetch the task related to the comment
     const task = await Task.findById(comment.taskId);
     if (!task) {
         throw new apiError(404, "Task not found");
     }
 
-    // 3️⃣ Check permission
     const isCommentAuthor =
         comment.userId.toString() === userId.toString();
 
@@ -378,7 +375,6 @@ const deleteComment = asyncHandler(async (req, res) => {
         );
     }
 
-    // 4️⃣ Delete the comment
     await comment.deleteOne();
 
     return res.status(200).json(
@@ -449,9 +445,9 @@ const fileUpload=asyncHandler(async(req,res,next)=>{
 
     if (!req.file) {
         throw new apiError(400, "No file uploaded");
-      }
+    }
       
-      const filePath = req.file.path;      
+    const filePath = req.file.path;      
 
     const uploadedFile= await uploadOnCloudinary(filePath);
 
