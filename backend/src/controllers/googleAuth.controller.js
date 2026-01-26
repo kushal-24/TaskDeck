@@ -13,14 +13,15 @@ export const googleCallBack=asyncHandler(async(req,res,next)=>{
 
     const options= {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: true,
+        sameSite: "none",
+        path: "/",
     }
 
     return res
     .status(302)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .redirect("http://localhost:5173/boards");
+    .redirect("https://taskdeck-omega.vercel.app/boards");
 })
 
