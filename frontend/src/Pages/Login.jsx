@@ -93,7 +93,7 @@ const Login = () => {
             <button
               onClick={() => {
                 window.location.href = //http://localhost:3000/auth/google
-                  import.meta.env.VITE_API_AUTH_URL + "/auth/google";
+                  import.meta.env.VITE_API_AUTH_URL + "/auth/google/callback";
               }}
               // 1️⃣ Browser → Backend /auth/google
               // 2️⃣ Backend → Google OAuth page
