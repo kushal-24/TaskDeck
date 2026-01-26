@@ -83,6 +83,7 @@ const userLogin = asyncHandler(async (req, res, next) => {
         httpOnly: true,
         secure: true,        // ✅ REQUIRED on HTTPS
         sameSite: "None", 
+        path: "/",
     }
 
     return res
@@ -118,6 +119,7 @@ const userLogout = asyncHandler(async (req, res, next) => {
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        path: "/",
     }
 
     return res
