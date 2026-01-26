@@ -27,8 +27,8 @@ import listRouter from './routes/list.router.js'
 import taskRouter from './routes/task.router.js'
 
 
-app.use('/api/v1/user/', userRouter);
-app.use('/api/v1/board/', boardRouter);
+app.use('/api/v1/user', userRouter);
+app.use('/api/v1/board', boardRouter);
 app.use('/api/v1',listRouter);
 app.use('/api/v1',taskRouter);
 
