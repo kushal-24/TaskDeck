@@ -7,7 +7,6 @@ Handle redirect to /boards
 import React, { useState } from "react";
 import { useAuth } from "../Context/Auth.context";
 import {useNavigate} from "react-router-dom"
-import LoadingSpinner from "./LoadingSpinner";
 
 
 const Login = () => {
