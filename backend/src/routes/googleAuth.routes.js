@@ -11,7 +11,7 @@ router.get(
         //On failure → redirects to frontend /login
         //On success → calls googleCallBack
         {
-        failureRedirect: "http://localhost:5173/login",
+        failureRedirect: "https://taskdeck-omega.vercel.app/login",
         session: false 
     }),googleCallBack);
 
