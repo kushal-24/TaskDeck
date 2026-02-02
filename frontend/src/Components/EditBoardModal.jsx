@@ -14,6 +14,8 @@ const EditBoardModal = ({
 }) => {
   const [selectedMember, setSelectedMember] = useState("");
   const [boardData, setBoardData] = useState(board);
+  const [permissionError, setPermissionError] = useState(null);
+  
   const {user} =useAuth()
 
   const saveEdit = () => {

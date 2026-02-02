@@ -46,7 +46,10 @@ function Board() {
   const [lists, setLists] = useState([]);
   const [tasksByList, setTasksByList] = useState({});
   const [filesData, setFilesData]=useState([])
+  const [permissionError, setPermissionError]=useState(null)
+
   const [loading, setLoading]= useState(false);
+  const [animate, setAnimate]= useState(false);
 
   const { boardId } = useParams();
   const { user } = useAuth();
@@ -57,7 +60,6 @@ function Board() {
 
   //fetching the board details////////////////////////////////////////////////////
   useEffect(() => {
-    
     const fetchBLT = async () => {
       setLoading(true)
       try {
@@ -92,6 +94,9 @@ function Board() {
       }
       finally{
         setLoading(false);
+        requestAnimationFrame(() => {
+          setAnimate(true);
+        });
       }
     };
     fetchBLT();
@@ -103,7 +108,7 @@ function Board() {
   //MEMBER Operations//////////////////////////////////////////////////////////////
   const addMember = async (userId) => {
     if(!userId===user._id){
-      alert("only permissions for owners")
+      setPermissionError("only permissions for owners")
       return;
     }
     await addMemberApi(board?._id, userId);
@@ -361,17 +366,34 @@ function Board() {
     }
   };
 
+  
   return (
+    <>
+    {/* Permission Toast */}
+    {permissionError && (
+    <PermissionToast
+      message={permissionError}
+      onClose={() => setPermissionError(null)}
+    />
+    )}
+
+
     <div className="min-h-screen bg-[#0a0e1a]">
-      
     {loading && (
       <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
         <LoadingSpinner message="Fetching board..." size="lg" />
       </div>
     )}
+    
+    {/* Cyan glow */}
+    <div className="absolute -top-40 -left-40 w-125 h-125 bg-cyan-500/10 rounded-full blur-3xl" />
+    
+    {/* Violet glow */}
+    <div className="absolute -bottom-40 -right-40 w-125 h-125 bg-violet-500/10 rounded-full blur-3xl" />
 
       {/* ................Navbar........................ */}
-      <nav className="relative overflow-hidden bg-[#0a0e1a]">
+      <nav className={`relative overflow-hidden bg-[#0a0e1a]
+        ${animate ?"reveal-up" : "opacity-0 translate-y-6"}`}>
       {/* subtle background */}
       <div className="absolute inset-0 bg-linear-to-r from-cyan-500/5 via-transparent to-blue-500/5" />
 
@@ -401,8 +423,8 @@ function Board() {
             {isOwner && (
               <div className="flex items-center gap-3 shrink-0">
                 {/* Edit */}
-                <button className="group relative overflow-hidden rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-all">
-                  <div className="absolute inset-0 rounded-lg bg-linear-to-r from-cyan-500 to-blue-500" />
+                <button className="group cursor-pointer relative overflow-hidden rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-all">
+                  <div className="absolute group-hover:from-cyan-400 group-hover:to-blue-500 inset-0 rounded-lg bg-linear-to-r from-cyan-500 to-blue-500" />
                   <div 
                   onClick={()=>setActiveBoard(board)}
                   className="relative flex items-center gap-2">
@@ -412,7 +434,7 @@ function Board() {
                 </button>
 
                 {/* Delete */}
-                <button className="group relative rounded-lg px-5 py-2.5 text-sm font-medium transition-all">
+                <button className="group cursor-pointer relative rounded-lg px-5 py-2.5 text-sm font-medium transition-all">
                   <div className="absolute inset-0 rounded-lg border border-red-500/30 bg-red-500/5 group-hover:bg-red-500/15" />
                   <div 
                   onClick={()=>deleteBoard(boardId)}
@@ -457,7 +479,7 @@ function Board() {
                     </div>
 
                     {/* Tooltip */}
-                    <div className="pointer-events-none absolute bottom-full right-0 mb-3 rounded-lg border border-gray-700/50 bg-gray-800/95 px-4 py-2 text-xs font-semibold text-white opacity-0 transition group-hover:opacity-100">
+                    <div className="pointer-events-none absolute bottom-full right-0 mb-3 rounded-lg border border-gray-700/50 bg-gray-800/95 px-2 py-2 text-xs font-semibold text-white opacity-0 transition group-hover:opacity-100">
                       {member.fullName}
                     </div>
                   </div>
@@ -476,6 +498,7 @@ function Board() {
       <DndContext onDragEnd={onDragEnd}>
         <ListContainer
           ownerId={ownerId}
+          animate={animate}
           lists={lists}
           tasksByList={tasksByList}
           onTaskClick={handleTaskClick} //just to set activeTask
@@ -517,101 +540,8 @@ function Board() {
         />
       )}
     </div>
+    </>
   );
 }
 
 export default Board;
-
-
-//   <div className="min-h-screen bg-[#0a0e1a]">
-
-//     {/* Navbar */}
-
-//     <nav>
-//       <div className=" border-b border-slate-700/50">
-//         <div className="mx-auto max-w-7xl px-6 py-4">
-//           <div className="flex items-start justify-between">
-
-//             {/* Left: Board Info */}
-//             <div className="flex-1">
-//               <h1 className="mb-2 text-3xl font-bold text-white">{board?.title}</h1>
-//               <p className="text-lg text-slate-400">{board?.description}</p>
-//             </div>
-
-//             {/* Right: Members + Actions */}
-//             <div className="flex items-center gap-4">
-//               {/* Members */}
-//               <div className="flex items-center -space-x-3">
-//                 {sampleMembers.map((member, index) => (
-//                   <div
-//                     key={member.id}
-//                     className="relative group"
-//                     style={{ zIndex: sampleMembers.length - index }}>
-//                     <div className="rounded-full border-2 border-[#0a1929] transition-transform group-hover:scale-110">
-//                       <LetterAvatar letter={member.letter} size={40} />
-//                     </div>
-
-//                     {/* Tooltip */}
-//                     <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 px-3 py-1 text-sm text-white opacity-0 transition-opacity group-hover:opacity-100">
-//                       {member.name}
-//                     </div>
-//                   </div>
-//                 ))}
-//               </div>
-
-//               {isOwner && (
-//                  <>
-//                  {/* Edit */}
-//                  <button
-//                    className="flex items-center gap-2 rounded-lg bg-cyan-500 px-4 py-2 text-white transition-colors hover:bg-cyan-600">
-//                    <Edit2 size={18} />
-//                    Edit Board
-//                  </button>
-
-//                  {/* Delete */}
-//                  <button
-//                    className="flex items-center gap-2 rounded-lg bg-slate-700 px-4 py-2 text-white transition-colors hover:bg-red-600">
-//                    <Trash2 size={18} />
-//                    Delete Board
-//                  </button>
-//                  </>
-//               )}
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </nav>
-
-//     {/* List container */}
-//   <main className="px-6 py-8">
-//      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-//        {lists.map((list) => (
-//         <div
-//           key={list.id}
-//           className="shrink-0 w-80 h-150 bg-linear-to-br from-gray-800/40 to-gray-900/40 backdrop-blur-md rounded-xl border border-gray-700/50 shadow-2xl overflow-hidden"
-//         >
-//           <div className="p-4 border-b border-gray-700/50 bg-black/20">
-//             <h2 className="text-lg font-semibold text-white">
-//               {list.title}
-//             </h2>
-//           </div>
-
-//           <div className="p-4 overflow-y-auto h-[calc(100%-60px)] space-y-3">
-// {/** component mapped vala */}<div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700/30 hover:border-cyan-500/50 transition-all cursor-pointer">
-//               <p className="text-gray-200 text-sm">Sample task item</p>
-//             </div>
-//             <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700/30 hover:border-cyan-500/50 transition-all cursor-pointer">
-//               <p className="text-gray-200 text-sm">Another task here</p>
-//             </div>
-//             <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700/30 hover:border-cyan-500/50 transition-all cursor-pointer">
-//               <p className="text-gray-200 text-sm">
-//                 More items can be added
-//               </p>
-//             </div>
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   </main>
-//   </div>
-// )

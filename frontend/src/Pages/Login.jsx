@@ -13,6 +13,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const { login } = useAuth();
 
   const navigate=useNavigate()
@@ -26,7 +27,9 @@ const Login = () => {
       await login({ email, password });
       navigate('/boards', { replace: true })
     } catch (error) {
-      throw error; 
+      setErrorMsg(
+        error?.response?.data?.message || "Invalid email or password"
+      );
     }
     finally{
       setLoading(false);
@@ -35,16 +38,30 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0f1e] px-4">
       {/* Background Gradient */}
+
+      {/* Ambient gradient blobs */}
+      <div className="absolute -top-40 -left-40 w-125 h-125 bg-cyan-500/10 rounded-full blur-3xl" />
+      <div className="absolute -bottom-40 -right-40 w-125 h-125 bg-violet-500/10 rounded-full blur-3xl" />
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-5%] left-[-5%] w-[30%] h-[30%] rounded-full bg-blue-900/20 blur-[100px]"></div>
       </div>
   
-      <div className="w-full max-w-md z-10">
-        <div className="bg-[#111827]/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 shadow-2xl">
+      <div className="w-full max-w-md reveal-up z-10">
+        <div className={`bg-[#111827]/60 backdrop-blur-xl p-6 rounded-2xl border shadow-2xl transition-all
+        ${
+          errorMsg
+          ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.25)]"
+          : "border-gray-800"}`}>
+
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-white mb-1">Welcome Back</h2>
             <p className="text-sm text-gray-400">Sign in to your account</p>
-          </div>
+
+            {errorMsg && (
+               <div className="mt-3 text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 text-center animate-shake"
+               >{errorMsg}</div>)}
+               </div>
   
           <form onSubmit={onSubmitHandler} className="space-y-4">
             {/* Email Field - Reduced height */}
@@ -76,8 +93,13 @@ const Login = () => {
             {/* Primary Sign In Button */}
             <button
               type="submit"
-              className="w-full cursor-pointer mt-2 bg-linear-to-r from-[#00acee] to-[#0072ff] hover:brightness-110 text-white font-semibold py-2.5 rounded-lg shadow-[0_0_15px_rgba(0,172,238,0.2)] transition-all active:scale-[0.98] text-sm">
-              Sign In
+              disabled={loading}
+              className="w-full cursor-pointer mt-2 bg-linear-to-r from-[#00acee] to-[#0072ff]
+             hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed
+             text-white font-semibold py-2.5 rounded-lg
+             shadow-[0_0_15px_rgba(0,172,238,0.2)]
+             transition-all active:scale-[0.98] text-sm">
+              {loading ? "Signing in..." : "Sign In"}
             </button>
   
             <div className="relative my-5">

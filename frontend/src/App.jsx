@@ -1,6 +1,3 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./Context/Auth.context.jsx";
@@ -13,10 +10,10 @@ import PublicRoute from "./Routes/PublicRoute";
 import Login from "./Pages/Login.jsx";
 import Board from "./Pages/Board.jsx";
 import Boards from "./Pages/Boards.jsx";
-import NotFound from "./Pages/NotFound.jsx";
 import Signup from "./Pages/Signup.jsx";
 import CreateBoard from "./Pages/CreateBoard.jsx";
 import LandingPage from "./Pages/LandingPage.jsx";
+import InvalidRoute from "./Pages/InvalidRoute.jsx";
 
 function App() {
   return (
@@ -77,10 +74,9 @@ function App() {
               </PrivateRoute>
             }
           />
-
           <Route 
           path="*" 
-          element={<NotFound />} />
+          element={<InvalidRoute />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

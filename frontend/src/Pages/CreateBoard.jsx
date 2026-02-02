@@ -9,8 +9,14 @@ const CreateBoard = ({ setActiveBoard, onCreateBoard }) => {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [closing, setClosing] = useState(false); // 👈 NEW
 
   const navigate = useNavigate();
+
+  const handleClose = () => {
+    setClosing(true);
+    setTimeout(() => setActiveBoard(false), 200); // match animation
+  };
 
   const handleSubmit = async () => {
     if (!title || !description) {
@@ -26,28 +32,39 @@ const CreateBoard = ({ setActiveBoard, onCreateBoard }) => {
       setError("Failed to create board");
     } finally {
       setLoading(false);
-      setActiveBoard(false);
+      handleClose();
     }
   };
 
   return (
     <>
+      {/* Backdrop */}
       <div
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-center justify-center"
-        onClick={() => setActiveBoard(false)}
+        className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-center justify-center
+          ${closing ? "modal-backdrop-out" : "modal-backdrop-in"}`}
+        onClick={handleClose}
       />
 
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md bg-linear-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl shadow-2xl border border-cyan-500/20 rounded-xl overflow-hidden">
-      {loading && (
-      <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-        <LoadingSpinner message="Creating board..." size="md" />
-      </div>
-    )}
+      {/* Modal Panel */}
+      <div
+        className={`fixed top-1/2 left-1/2 z-50 w-full max-w-md
+          -translate-x-1/2 -translate-y-1/2
+          bg-linear-to-br from-slate-900/95 to-slate-800/95
+          backdrop-blur-xl shadow-2xl border border-cyan-500/20
+          rounded-xl overflow-hidden
+          ${closing ? "modal-panel-out" : "modal-panel-in"}`}
+      >
+        {loading && (
+          <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+            <LoadingSpinner message="Creating board..." size="md" />
+          </div>
+        )}
+
         <div className="flex items-center justify-between p-6 border-b border-cyan-500/20">
           <h2 className="text-2xl font-bold text-white">Create Board</h2>
           <button
-            onClick={() => setActiveBoard(false)}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+            onClick={handleClose}
+            className="p-2 rounded-lg cursor-pointer hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
           >
             <X className="w-5 h-5" />
           </button>
@@ -84,20 +101,22 @@ const CreateBoard = ({ setActiveBoard, onCreateBoard }) => {
 
         <div className="border-t border-cyan-500/20 p-6 bg-linear-to-t from-slate-900/80 to-transparent flex gap-3">
           <button
-            onClick={() => setActiveBoard(false)}
-            className="flex-1 px-4 py-2.5 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-gray-500/30">
+            onClick={handleClose}
+            className="flex-1 cursor-pointer px-4 py-2.5 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-gray-500/30"
+          >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading || !title.trim()}
-            className="flex-1 px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center gap-2">
+            className="flex-1 cursor-pointer px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center gap-2"
+          >
             Create
           </button>
         </div>
       </div>
-    </>)
-
+    </>
+  );
 };
 
 export default CreateBoard;

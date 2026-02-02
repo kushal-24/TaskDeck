@@ -1,11 +1,12 @@
 import React from "react";
 import { useAuth } from "../Context/Auth.context";
 
-const BoardGrid = ({users, boards, onBoardClick }) => {
+const BoardGrid = ({users, boards, onBoardClick, animate }) => {
   const { user } = useAuth();
 
   return (
-    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
+    <div className={`mt-4 grid grid-cols-1 md:grid-cols-2 gap-5 mb-12
+    ${animate ? "reveal-up" : "opacity-0 translate-y-6"}`}>
       {boards.map((board) => {
         const isOwner = board.ownerId.toString() === user._id.toString();
         const isMember = board.members.includes(user._id);    
@@ -23,7 +24,6 @@ const BoardGrid = ({users, boards, onBoardClick }) => {
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
               <div className="absolute inset-0 bg-linear-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
             </div> */}
-
             <div className="p-4">
               <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-400 transition-colors">
                 {board.title}

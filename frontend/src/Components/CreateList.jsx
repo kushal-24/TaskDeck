@@ -11,7 +11,7 @@ const CreateList = ({ onCreateList }) => {
   };
 
   return (
-    <div className="w-72 mt-3 shrink-0">
+    <div className="w-72 reveal-up mt-3 shrink-0">
       <form
         onSubmit={onSubmitHandler}
         className="
@@ -27,6 +27,7 @@ const CreateList = ({ onCreateList }) => {
         <input
           type="text"
           value={title}
+          required
           placeholder="List title"
           onChange={(e) => setTitle(e.target.value)}
           className="
@@ -47,6 +48,7 @@ const CreateList = ({ onCreateList }) => {
         <button
           type="submit"
           className="
+          cursor-pointer
             mt-1
             m-3
             rounded-lg

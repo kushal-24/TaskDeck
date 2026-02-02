@@ -39,7 +39,13 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0f1e] px-4 relative overflow-hidden">
       {/* Brand Logo in Top Left */}
-      <div className="absolute top-6 left-6 flex items-center gap-2">
+
+      {/* Ambient gradient blobs */}
+      <div className="absolute -top-40 -left-40 w-125 h-125 bg-cyan-500/10 rounded-full blur-3xl" />
+      <div className="absolute -bottom-40 -right-40 w-125 h-125 bg-violet-500/10 rounded-full blur-3xl" />
+
+
+      <div className="absolute  top-6 left-6 flex items-center gap-2">
         <div className="flex gap-1 items-end">
             <div className="w-1.5 h-6 bg-[#00acee] rounded-full"></div>
             <div className="w-1.5 h-4 bg-[#00acee] rounded-full"></div>
@@ -48,7 +54,7 @@ const Signup = () => {
         <span className="text-white text-xl font-bold tracking-tight">TaskDeck</span>
       </div>
   
-      <div className="w-full max-w-md z-10">
+      <div className="w-full reveal-up max-w-md z-10">
         <div className="bg-[#111827]/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 shadow-2xl">
           <div className="text-center mb-5">
             <h2 className="text-2xl font-bold text-white mb-1">Create Account</h2>

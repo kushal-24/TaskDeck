@@ -50,6 +50,7 @@ function ListContainer({
   boardData,
   onFetchComments,
   onTaskClick,
+  animate
 }) {
   const [activeListId, setActiveListId] = useState(null);
   const { user } = useAuth();
@@ -66,6 +67,8 @@ function ListContainer({
             return (
               <SortableList key={list._id} list={list}>
                 <ListCard
+                  animate={animate}
+                  index={list._id}
                   ownerId={ownerId}
                   list={list}
                   tasks={tasksByList[list._id] || []}
@@ -88,7 +91,7 @@ function ListContainer({
                 {canDeleteList && (
                   <button
                     onClick={() => onDeleteList(list._id)}
-                    className="mt-4 w-full rounded-lg bg-red-600 py-2 text-sm text-white">
+                    className="mt-4 w-full rounded-lg cursor-pointer bg-red-600 hover:bg-red-500 py-2 text-sm text-white">
                     Delete List
                   </button>
                 )}

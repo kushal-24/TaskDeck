@@ -1,1 +1,91 @@
 @import "tailwindcss";
+
+/* Reveal Up Animation */
+@keyframes revealUp {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .reveal-up {
+    animation: revealUp 0.6s ease-out forwards;
+  }
+  
+  .reveal-delay-1 { animation-delay: 0.1s; }
+  .reveal-delay-2 { animation-delay: 0.2s; }
+  .reveal-delay-3 { animation-delay: 0.3s; }
+  .reveal-delay-4 { animation-delay: 0.4s; }
+  
+
+/* Backdrop */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  
+  /* Modal panel */
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  @keyframes scaleOut {
+    from {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.95) translateY(8px);
+    }
+  }
+  
+  /* Utility classes */
+  .modal-backdrop-in {
+    animation: fadeIn 0.2s ease-out forwards;
+  }
+  
+  .modal-backdrop-out {
+    animation: fadeOut 0.2s ease-in forwards;
+  }
+  
+  .modal-panel-in {
+    animation: scaleIn 0.25s ease-out forwards;
+  }
+  
+  .modal-panel-out {
+    animation: scaleOut 0.2s ease-in forwards;
+  }
+  
+
+  @keyframes toastIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-toast-in {
+    animation: toastIn 0.3s ease-out forwards;
+  }
+  
