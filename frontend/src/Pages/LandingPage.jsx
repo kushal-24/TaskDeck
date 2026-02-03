@@ -18,7 +18,7 @@ function LandingPage() {
         </div>
       </nav>
 
-      <main className="pt-32 pb-20 px-6">
+      <main className="pt-32 pb-20 reveal-up px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-16">
             <div className="inline-flex items-center gap-2 bg-cyan-500/20 text-cyan-300 px-4 py-2 rounded-full text-sm font-medium mb-6 border border-cyan-500/30">
@@ -40,14 +40,14 @@ function LandingPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
               <button 
               onClick={()=>navigate('/signup')}
-              className="group w-full sm:w-auto bg-linear-to-r from-cyan-500 to-blue-600 text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg shadow-cyan-500/40 hover:shadow-xl hover:shadow-cyan-500/50 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+              className="group w-full cursor-pointer sm:w-auto bg-linear-to-r from-cyan-500 to-blue-600 text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg shadow-cyan-500/40 hover:shadow-xl hover:shadow-cyan-500/50 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                 Get Started Free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
 
               <button 
               onClick={()=>navigate('/login')}
-              className="w-full sm:w-auto bg-slate-800 text-white px-8 py-3 rounded-xl font-semibold text-lg border-2 border-slate-700 hover:border-cyan-500 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 transform hover:-translate-y-0.5">
+              className="w-full cursor-pointer sm:w-auto bg-slate-800 text-white px-8 py-3 rounded-xl font-semibold text-lg border-2 border-slate-700 hover:border-cyan-500 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 transform hover:-translate-y-0.5">
                 Sign In
               </button>
             </div>

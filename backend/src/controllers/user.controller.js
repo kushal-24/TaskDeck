@@ -68,6 +68,12 @@ const userLogin = asyncHandler(async (req, res, next) => {
     if (!user) {
         throw new apiError(404, "No user registered found");
     }
+    
+    if (!user.password) {
+        return res.status(400).json({
+          message: "This account was created using Google. Please sign in with Google."
+        });
+    }
 
     const isPasswordValid = await user.isPassCorrect(password)
 

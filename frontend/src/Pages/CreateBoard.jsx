@@ -47,7 +47,7 @@ const CreateBoard = ({ setActiveBoard, onCreateBoard }) => {
 
       {/* Modal Panel */}
       <div
-        className={`fixed top-1/2 left-1/2 z-50 w-full max-w-md
+        className={`absolute top-1/4  left-1/2 z-50 w-full max-w-md
           -translate-x-1/2 -translate-y-1/2
           bg-linear-to-br from-slate-900/95 to-slate-800/95
           backdrop-blur-xl shadow-2xl border border-cyan-500/20

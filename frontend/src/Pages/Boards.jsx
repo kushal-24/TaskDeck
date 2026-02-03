@@ -9,7 +9,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllBoardsApi } from "../Api/board.api";
-import { Bell, Kanban, LogOut } from "lucide-react";
+import { Bell, Kanban, LogOut, PersonStanding, User } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner.jsx";
 
 import BoardGrid from "../Components/BoardGrid.jsx";
@@ -134,12 +134,18 @@ const Boards = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Kanban className="w-8 h-8 text-cyan-400" strokeWidth={2.5} />
-                <span className="text-lg font-bold text-white">TaskDeck</span>
+                <span className="text-lg hidden sm:block font-bold text-white">TaskDeck</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <button className="p-1.5 cursor-pointer rounded-xl backdrop-blur-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300 group">
                   <Bell className="w-5 h-5 text-gray-300 group-hover:text-cyan-400 transition-colors" />
+                </button>
+                
+                <button 
+                onClick={()=>setActiveProfile(user)}
+                className="p-1.5 cursor-pointer rounded-xl backdrop-blur-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300 group">
+                  <User className="w-5 h-5 text-gray-300 group-hover:text-cyan-400 transition-colors" />
                 </button>
 
                 <button 

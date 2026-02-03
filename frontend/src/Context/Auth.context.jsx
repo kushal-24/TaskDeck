@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
       setUser(res.data.data.user);
       console.log(user);
     } catch (error) {
-      console.log("error in logging in :", error.response?.data?.message);
+      throw error;
     }
     finally{
       setLoading(false)

@@ -1,140 +1,186 @@
 import React, { useState } from "react";
+import { X, UserCog, KeyRound } from "lucide-react";
 
-const EditProfileDrawer = ({onClose, onUpdateProfile, profile, onSavePass}) => {
-const [fullName, setFullName] = useState(profile.fullName);
-const [oldPassword, setOldPassword] = useState("");
-const [newPassword, setNewPassword] = useState("");
-const [changePass, setChangePass] = useState(false);
+const EditProfileDrawer = ({
+  onClose,
+  onUpdateProfile,
+  profile,
+  onSavePass,
+}) => {
+  const [fullName, setFullName] = useState(profile.fullName);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [changePass, setChangePass] = useState(false);
 
-
-const onSave = () => {
+  const onSave = () => {
     if (fullName === profile.fullName) {
       alert("No changes found");
       return;
     }
-  
     onUpdateProfile({ fullName });
     onClose();
   };
-  
 
   const savePassHandler = () => {
     if (!oldPassword || !newPassword) {
       alert("Fill both password fields");
       return;
     }
-
-    onSavePass({oldPassword, newPassword});
-  
+    onSavePass({ oldPassword, newPassword });
     setOldPassword("");
     setNewPassword("");
     setChangePass(false);
   };
 
-    return (
-      <div className="fixed inset-0 z-50 flex">
-        
-        {/* Backdrop */}
-        <div className="flex-1 bg-black/30"></div>
-  
-        {/* Drawer */}
-        <div className="w-full max-w-sm bg-white shadow-xl p-6">
-          
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Drawer */}
+      <div className="
+        fixed inset-y-0 right-0 z-50 w-full max-w-md
+        bg-linear-to-br from-slate-900/95 to-slate-800/95
+        backdrop-blur-xl border-l border-cyan-500/20
+        shadow-2xl
+        animate-slide-in-right
+      ">
+        <div className="h-full flex flex-col">
+
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Edit Profile
-            </h2>
-            <button 
-            onClick={()=>onClose()}
-            className="text-gray-400 hover:text-gray-600">
-              ✕
+          <div className="flex items-center justify-between p-6 border-b border-cyan-500/20">
+            <div className="flex items-center gap-3">
+              <UserCog className="w-5 h-5 text-cyan-400" />
+              <h2 className="text-xl font-bold text-white">
+                Edit Profile
+              </h2>
+            </div>
+
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+            >
+              <X className="w-5 h-5" />
             </button>
           </div>
-  
-          {/* Full Name */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
-            </label>
-            <input
-            value={fullName}
-            onChange={(e)=>setFullName(e.target.value)}
-              type="text"
-              placeholder="Enter full name"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-  
-          {/* Email */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              disabled
-              value={profile.email}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+
+          {/* Content */}
+          <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+
+            {/* Full Name */}
+            <div>
+              <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                Full Name
+              </label>
+              <input
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                type="text"
+                className="w-full px-4 py-3 bg-white/5 border border-cyan-500/30
+                  rounded-lg text-white placeholder-gray-500
+                  focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+              />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                Email
+              </label>
+              <input
+                type="email"
+                disabled
+                value={profile.email}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10
+                  rounded-lg text-gray-400 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Change password toggle */}
+            {!changePass && (
+              <button
+                onClick={() => setChangePass(true)}
+                className="flex items-center gap-2 text-sm font-medium text-cyan-400
+                  hover:text-cyan-300 transition"
+              >
+                <KeyRound className="w-4 h-4" />
+                Change Password
+              </button>
+            )}
+
+            {/* Password section */}
+            {changePass && (
+              <div className="space-y-4 rounded-xl border border-cyan-500/20 bg-white/5 p-4">
+                <div>
+                  <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                    Old Password
+                  </label>
+                  <input
+                    type="password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-cyan-500/30
+                      rounded-lg text-white focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-cyan-500/30
+                      rounded-lg text-white focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setChangePass(false)}
+                    className="flex-1 py-2 rounded-lg bg-gray-600 hover:bg-gray-500
+                      text-white font-medium transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={savePassHandler}
+                    className="flex-1 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500
+                      text-white font-semibold transition"
+                  >
+                    Save Password
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          <button 
-          onClick={()=>setChangePass(true)}
-          className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-              Change Password
-            </button>
-  
-          {/* Password */}
-          {changePass && (
-            <>
-            <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Old Password
-            </label>
-            <input
-            onChange={(e)=>setOldPassword(e.target.value)}
-              type="password"
-              placeholder="••••••••"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              New Password
-            </label>
-            <input
-            onChange={(e)=>setNewPassword(e.target.value)}
-              type="password"
-              placeholder="••••••••"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <button 
-          onClick={()=>savePassHandler()}
-          className="flex-1 rounded-lg border px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">
-              Save password
-            </button>
-            </>
-          )}
-  
-          {/* Actions */}
-          <div className="flex gap-3">
-            <button className="flex-1 rounded-lg border px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">
+          {/* Footer actions */}
+          <div className="p-6 border-t border-cyan-500/20 flex gap-3 bg-linear-to-t from-slate-900/80 to-transparent">
+            <button
+              onClick={onClose}
+              className="flex-1 py-3 rounded-lg bg-gray-600 hover:bg-gray-500
+                text-white font-semibold transition"
+            >
               Cancel
             </button>
-
-            <button 
-            onClick={()=> onSave()}
-            className="flex-1 rounded-lg border px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">
-              Save changes
+            <button
+              onClick={onSave}
+              className="flex-1 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500
+                text-white font-semibold transition shadow-lg shadow-cyan-500/30"
+            >
+              Save Changes
             </button>
           </div>
         </div>
       </div>
-    );
-  };
-  
-  export default EditProfileDrawer;  
+    </>
+  );
+};
+
+export default EditProfileDrawer;
