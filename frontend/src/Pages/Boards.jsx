@@ -184,30 +184,6 @@ const Boards = () => {
             boards={boards}
             onBoardClick={(boardId) => navigate(`/boards/${boardId}`)}/>
 
-          {/* ActivityLogs */}
-          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Activity Log</h2>
-              <button className="text-white cursor-pointer hover:text-cyan-400 text-sm font-medium transition-colors">
-                View All
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {activityLogs.map((log) => (
-                <div
-                  key={log.id}
-                  className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all duration-200">
-                  <div className="w-2 h-2 rounded-full bg-cyan-400 mt-2 shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-gray-200 text-sm mb-1">{log.action}</p>
-                    <span className="text-gray-500 text-xs">{log.time}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {activeProfile && (
             <EditProfileDrawer
               onUpdateProfile={updateProfile}
@@ -224,16 +200,6 @@ const Boards = () => {
           )}
         </div>
       </div>
-      {/* <button
-        onClick={()=>setActiveProfile(user)}
-          className="rounded-md bg-blue-600 px-4 py-2 text-white cursor-pointer">
-          Edit profile
-        </button>
-        <button
-        onClick={logoutHandler}
-          className="rounded-md bg-blue-600 px-4 py-2 text-white cursor-pointer">
-          logout
-        </button> */}
     </>
   );
 };

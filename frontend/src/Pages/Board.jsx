@@ -428,22 +428,20 @@ function Board() {
                 {isOwner && (
                   <div className="flex items-center gap-2 shrink-0">
                     {/* Edit */}
-                    <button className="group relative overflow-hidden rounded-lg px-3 sm:px-5 py-2.5 text-sm font-medium text-white transition-all">
-                      <div className="absolute inset-0 rounded-lg bg-linear-to-r from-cyan-500 to-blue-500" />
-
+                    
+                    <button className="group relative cursor-pointer overflow-hidden rounded-lg px-3 sm:px-5 py-2.5 text-sm font-medium text-white transition-all">
+                      <div className="absolute group-hover:from-cyan-500 group-hover:to-cyan-600 inset-0  rounded-lg bg-linear-to-r from-cyan-500 to-blue-500" />
                       <div
                         onClick={() => setActiveBoard(board)}
-                        className="relative flex items-center gap-2"
-                      >
+                        className="relative flex items-center gap-2">
                         <Edit2 size={16} />
                         <span className="hidden sm:inline">Edit</span>
                       </div>
                     </button>
 
                     {/* Delete */}
-                    <button className="group relative rounded-lg px-3 sm:px-5 py-2.5 text-sm font-medium transition-all">
+                    <button className="group cursor-pointer relative rounded-lg px-3 sm:px-5 py-2.5 text-sm font-medium transition-all">
                       <div className="absolute inset-0 rounded-lg border border-red-500/30 bg-red-500/5 group-hover:bg-red-500/15" />
-
                       <div
                         onClick={() => deleteBoard(boardId)}
                         className="relative flex items-center gap-2 text-red-400">
@@ -451,6 +449,7 @@ function Board() {
                         <span className="hidden sm:inline">Delete</span>
                       </div>
                     </button>
+
                   </div>
                 )}
               </div>

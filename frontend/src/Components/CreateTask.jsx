@@ -32,7 +32,7 @@ function CreateTask({  onCreateTask, onClose }) {
       />
   
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-linear-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-cyan-500/20 overflow-hidden">
+      <div className="relative reveal-up w-full max-w-md bg-linear-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-cyan-500/20 overflow-hidden">
         
         {/* Subtle glow */}
         <div className="absolute inset-0 bg-linear-to-br from-cyan-500/5 to-transparent pointer-events-none" />
