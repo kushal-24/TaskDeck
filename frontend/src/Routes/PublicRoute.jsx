@@ -9,7 +9,9 @@ const publicRoute=({children})=>{
     if(loading) 
         return (
     <>
-    <LoadingSpinner message="Loading..." size="lg" />
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
+        <LoadingSpinner message="Fetching board..." size="lg" />
+    </div>
     </> 
 )
 
