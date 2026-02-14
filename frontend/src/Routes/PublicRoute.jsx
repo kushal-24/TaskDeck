@@ -4,7 +4,12 @@ import { useAuth } from "../Context/Auth.context";
 const publicRoute=({children})=>{
     const{ isAuthenticated, loading}= useAuth();
 
-    if(loading) return <p>Loading...</p>
+    if(loading) 
+        return (
+    <>
+    <LoadingSpinner message="Loading..." size="lg" />
+    </> 
+)
 
     if(isAuthenticated){
         return <Navigate to="/boards" replace />;
