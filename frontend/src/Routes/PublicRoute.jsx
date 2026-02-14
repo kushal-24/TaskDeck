@@ -1,5 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../Context/Auth.context";
+import LoadingSpinner from "../Pages/LoadingSpinner";
+
 
 const publicRoute=({children})=>{
     const{ isAuthenticated, loading}= useAuth();
