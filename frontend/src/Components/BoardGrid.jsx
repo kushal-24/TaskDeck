@@ -5,7 +5,7 @@ const BoardGrid = ({users, boards, onBoardClick, animate }) => {
   const { user } = useAuth();
 
   return (
-    <div className={`mt-4 grid grid-cols-1 md:grid-cols-2 gap-5 mb-12
+    <div className={`mt-4 grid grid-cols-1 md:grid-cols-2 gap-8 mb-12
     ${animate ? "reveal-up" : "opacity-0 translate-y-6"}`}>
       {boards.map((board) => {
         const isOwner = board.ownerId.toString() === user._id.toString();

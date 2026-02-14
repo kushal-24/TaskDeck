@@ -12,7 +12,6 @@ const EditProfileDrawer = ({
   const [newPassword, setNewPassword] = useState("");
   const [changePass, setChangePass] = useState(false);
 
-  // 🔒 Lock background scroll
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {

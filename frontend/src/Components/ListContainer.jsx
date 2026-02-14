@@ -60,8 +60,7 @@ function ListContainer({
       <div className="flex gap-8 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
         <SortableContext
           items={lists.map((list) => list._id)}
-          strategy={horizontalListSortingStrategy}
-        >
+          strategy={horizontalListSortingStrategy}>
           {lists.map((list) => {
             const canDeleteList = user && list.createdBy === user._id;
             return (

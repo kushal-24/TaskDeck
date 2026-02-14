@@ -1,57 +1,15 @@
-/**
- * Boards Page
- * - Fetch all boards
- * - Store boards in state
- * - Render board cards via components
- * - Navigate to create board page
- */
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllBoardsApi } from "../Api/board.api";
-import { Bell, Kanban, LogOut, PersonStanding, User } from "lucide-react";
+import { Kanban, LogOut } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner.jsx";
 
 import BoardGrid from "../Components/BoardGrid.jsx";
-import { changeFullName, changePassApi, getAllUsers } from "../Api/auth.api.js";
+import {getAllUsers } from "../Api/auth.api.js";
 import { useAuth } from "../Context/Auth.context.jsx";
-import EditProfileDrawer from "../Components/EditProfileDrawer.jsx";
 import CreateBoard from "./CreateBoard.jsx";
 
 const Boards = () => {
-  const activityLogs = [
-    {
-      id: 1,
-      action: "You added a new task to Project Alpha",
-      time: "2 hours ago",
-    },
-    {
-      id: 2,
-      action: "Sarah Johnson commented on Marketing Campaign",
-      time: "4 hours ago",
-    },
-    {
-      id: 3,
-      action: "You completed 3 tasks in Product Design",
-      time: "5 hours ago",
-    },
-    {
-      id: 4,
-      action: "Michael Chen assigned you to Development Sprint",
-      time: "1 day ago",
-    },
-    {
-      id: 5,
-      action: "Emma Wilson updated the board description",
-      time: "2 days ago",
-    },
-    {
-      id: 6,
-      action: "You created a new board: Q1 Planning",
-      time: "3 days ago",
-    },
-  ];
-
   const [boards, setBoards] = useState([]);
   const [createBoard, setCreateBoard] = useState(false);
   const [users,setUsers]=useState([])
@@ -60,12 +18,10 @@ const Boards = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [activeProfile, setActiveProfile] = useState(null);
   const [animate, setAnimate] = useState(false);
   const [loading, setLoading] = useState(false);
 
 
-  // ✅ Fetch all boards
   useEffect(() => {
     if (user) {
       const fetchBoardsAndUsers = async () => {
@@ -90,14 +46,6 @@ const Boards = () => {
     } 
     else return <p className="text-4xl">Loading..........</p>;
   }, []);
-
-  const updateProfile = async ({ fullName }) => {
-    const resEdited = await changeFullName({ fullName });
-  };
-
-  const savePass = async ({ oldPassword, newPassword }) => {
-    await changePassApi({ oldPassword, newPassword });
-  };
 
   const onCreateHandler= async()=>{
     const res= await getAllBoardsApi()
@@ -138,16 +86,6 @@ const Boards = () => {
               </div>
 
               <div className="flex items-center gap-3">
-                <button className="p-1.5 cursor-pointer rounded-xl backdrop-blur-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300 group">
-                  <Bell className="w-5 h-5 text-gray-300 group-hover:text-cyan-400 transition-colors" />
-                </button>
-                
-                <button 
-                onClick={()=>setActiveProfile(user)}
-                className="p-1.5 cursor-pointer rounded-xl backdrop-blur-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300 group">
-                  <User className="w-5 h-5 text-gray-300 group-hover:text-cyan-400 transition-colors" />
-                </button>
-
                 <button 
                 onClick={()=>logoutHandler()}
                 className="p-1.5 rounded-xl backdrop-blur-lg flex flex-row gap-2 justify-center items-center text-white cursor-pointer hover:text-cyan-400 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300 group">
@@ -184,14 +122,6 @@ const Boards = () => {
             boards={boards}
             onBoardClick={(boardId) => navigate(`/boards/${boardId}`)}/>
 
-          {activeProfile && (
-            <EditProfileDrawer
-              onUpdateProfile={updateProfile}
-              onSavePass={savePass}
-              onClose={() => setActiveProfile(null)}
-              profile={user}
-            />
-          )}
           {createBoard && (
             <CreateBoard
             setActiveBoard={setCreateBoard}
