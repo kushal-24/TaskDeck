@@ -14,6 +14,7 @@ import Signup from "./Pages/Signup.jsx";
 import CreateBoard from "./Pages/CreateBoard.jsx";
 import LandingPage from "./Pages/LandingPage.jsx";
 import InvalidRoute from "./Pages/InvalidRoute.jsx";
+import Trial from "./Pages/Trial.jsx";
 
 function App() {
   return (
@@ -62,6 +63,15 @@ function App() {
             element={
               <PrivateRoute>
                 <CreateBoard/>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/trial"
+            element={
+              <PrivateRoute>
+                <Trial/>
               </PrivateRoute>
             }
           />
