@@ -381,7 +381,8 @@ function Board() {
         />
       )}
 
-      <div className="min-h-screen bg-[#0a0e1a]">
+      <div className="min-h-screen overflow-y-auto overflow-x-hidden bg-[#0a0e1a] relative">
+
         {loading && (
           <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
             <LoadingSpinner message="Fetching board..." size="lg" />
@@ -504,7 +505,7 @@ function Board() {
 
         {/* Lists Heading */}
         <div className="mx-auto w-full max-w-7xl px-3 pt-6 pb-4">
-          <DndContext onDragEnd={onDragEnd}>
+        <DndContext onDragEnd={onDragEnd}>
             <ListContainer
               ownerId={ownerId}
               animate={animate}

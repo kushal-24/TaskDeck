@@ -42,12 +42,21 @@ const Login = () => {
     }
   };
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0f1e] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0f1e] px-4 relative overflow-hidden">
       {/* Background Gradient */}
 
       {/* Ambient gradient blobs */}
       <div className="absolute -top-40 -left-40 w-125 h-125 bg-cyan-500/10 rounded-full blur-3xl" />
       <div className="absolute -bottom-40 -right-40 w-125 h-125 bg-violet-500/10 rounded-full blur-3xl" />
+
+      <div className="absolute  top-6 left-6 flex items-center gap-2">
+        <div className="flex gap-1 items-end">
+            <div className="w-1.5 h-6 bg-[#00acee] rounded-full"></div>
+            <div className="w-1.5 h-4 bg-[#00acee] rounded-full"></div>
+            <div className="w-1.5 h-8 bg-[#00acee] rounded-full"></div>
+        </div>
+        <span className="text-white text-xl font-bold tracking-tight">TaskDeck</span>
+      </div>
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-5%] left-[-5%] w-[30%] h-[30%] rounded-full bg-blue-900/20 blur-[100px]"></div>

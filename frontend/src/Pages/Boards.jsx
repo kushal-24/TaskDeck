@@ -75,7 +75,6 @@ const Boards = () => {
     
     {/* Violet glow */}
     <div className="fixed -bottom-40 -right-40 w-125 h-125 bg-violet-500/10 rounded-full blur-3xl" />
-    
         {/*............. Navbar............... */}
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[85%] max-w-4xl"> 
           <nav className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl shadow-2xl px-5 py-2.5">
@@ -121,14 +120,14 @@ const Boards = () => {
             users={users}
             boards={boards}
             onBoardClick={(boardId) => navigate(`/boards/${boardId}`)}/>
+        </div>
 
-          {createBoard && (
+        {createBoard && (
             <CreateBoard
             setActiveBoard={setCreateBoard}
             onCreateBoard={onCreateHandler}
             />
           )}
-        </div>
       </div>
     </>
   );

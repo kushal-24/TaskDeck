@@ -117,7 +117,7 @@ const ListCard = ({
         </div>
 
         {/* Tasks */}
-        <div className="p-4 overflow-y-auto h-[calc(100%-60px)] space-y-3">
+        <div className="p-4 overflow-y-auto flex-1 space-y-3">
           <SortableContext
             items={tasks.map((task) => task._id)}
             strategy={verticalListSortingStrategy}

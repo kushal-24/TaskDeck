@@ -28,7 +28,7 @@ const SortableList = ({ list, children }) => {
       <div
         {...attributes}
         {...listeners}
-        className="cursor-grab text-gray-500 text-xs mb-1 select-none"
+        className="cursor-grab shrink-0 snap-start text-gray-500 text-xs mb-1 select-none"
       >
         ⠿
       </div>
@@ -56,7 +56,13 @@ function ListContainer({
   const { user } = useAuth();
 
   return (
-    <div className="px-6 py-4 flex flex-col">
+    <div
+    className="
+      flex flex-col gap-6
+      md:grid
+      md:grid-cols-[repeat(auto-fit,minmax(320px,1fr))]
+      md:gap-8
+      pb-4">
       <div className="flex gap-8 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
         <SortableContext
           items={lists.map((list) => list._id)}

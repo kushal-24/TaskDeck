@@ -13,11 +13,6 @@ const CreateBoard = ({ setActiveBoard, onCreateBoard }) => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => (document.body.style.overflow = "auto");
-  }, []);
-
   const handleClose = () => {
     setClosing(true);
     setTimeout(() => setActiveBoard(false), 200);
@@ -42,39 +37,37 @@ const CreateBoard = ({ setActiveBoard, onCreateBoard }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50">
-      <div
-        onClick={handleClose}
-        className={`absolute inset-0 bg-black/60 backdrop-blur-md
-          ${closing ? "modal-backdrop-out" : "modal-backdrop-in"}`}
-      />
-
-      {/* Modal */}
-      <div className="absolute inset-0 flex items-center justify-center px-4">
+    <div 
+    onClick={handleClose}
+    className={`bg-black/50 backdrop-blur-sm fixed inset-0
+      ${closing ? "modal-backdrop-out" : "modal-backdrop-in"}`}>
+  
+      <div className="fixed inset-0 flex items-center justify-center px-4">
         <div
-          className={`relative w-full max-w-md
-            rounded-xl overflow-hidden
-            bg-linear-to-br from-slate-900/95 to-slate-800/95
-            backdrop-blur-xl
-            border border-cyan-500/20
-            shadow-2xl
-            ${closing ? "modal-panel-out" : "modal-panel-in"}`}>
+          className={`relative w-full max-w-md max-h-[90vh] overflow-y-auto
+          rounded-xl
+          bg-linear-to-br from-slate-900/95 to-slate-800/95
+          backdrop-blur-xl
+          border border-cyan-500/20
+          shadow-2xl
+          ${closing ? "modal-panel-out" : "modal-panel-in"}`}>
           {loading && (
             <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
               <LoadingSpinner message="Creating board..." size="md" />
             </div>
           )}
-
+  
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-cyan-500/20">
             <h2 className="text-2xl font-bold text-white">Create Board</h2>
             <button
               onClick={handleClose}
-              className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition">
+              className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition"
+            >
               <X className="w-5 h-5" />
             </button>
           </div>
-
+  
           {/* Content */}
           <div className="p-6 space-y-5">
             <div>
@@ -89,7 +82,7 @@ const CreateBoard = ({ setActiveBoard, onCreateBoard }) => {
                 autoFocus
               />
             </div>
-
+  
             <div>
               <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2 block">
                 Description
@@ -102,12 +95,10 @@ const CreateBoard = ({ setActiveBoard, onCreateBoard }) => {
                 placeholder="Enter board description"
               />
             </div>
-
-            {error && (
-              <p className="text-sm text-red-400">{error}</p>
-            )}
+  
+            {error && <p className="text-sm text-red-400">{error}</p>}
           </div>
-
+  
           {/* Footer */}
           <div className="border-t border-cyan-500/20 p-6 flex gap-3">
             <button
@@ -125,9 +116,11 @@ const CreateBoard = ({ setActiveBoard, onCreateBoard }) => {
             </button>
           </div>
         </div>
+  
       </div>
     </div>
   );
+  
 };
 
 export default CreateBoard;

@@ -671,14 +671,14 @@ const TaskDetailModal = ({
                 {taskEditingAccess && (
                   <button
                     onClick={() => startEditTask()}
-                    className="flex-1 px-6 py-3 cursor-pointer bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center gap-2">
+                    className="flex-1 sm:px-6 sm:py-3 px-2 py-1.5 cursor-pointer bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center gap-2">
                     <Edit2 className="w-4 h-4" />
                     Edit Task
                   </button>
                 )}
                 <button
                   onClick={() => handleDeleteTask()}
-                  className="flex-1 px-6 py-3 bg-rose-600 cursor-pointer hover:bg-rose-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-rose-500/30 flex items-center justify-center gap-2"
+                  className="flex-1 sm:px-6 sm:py-3 px-2 py-1.5 bg-rose-600 cursor-pointer hover:bg-rose-500 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-rose-500/30 flex items-center justify-center gap-2"
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete Task
