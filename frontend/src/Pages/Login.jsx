@@ -1,12 +1,7 @@
-/**
-Render login UI
-Take email/password input
-Call login() from AuthContext
-Handle redirect to /boards
- */
 import React, { useState } from "react";
 import { useAuth } from "../Context/Auth.context";
 import { useNavigate } from "react-router-dom";
+import { Kanban, ArrowRight } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -22,14 +17,13 @@ const Login = () => {
     setLoading(true);
 
     try {
-      setLoading(true);
       await login({ email, password });
       navigate("/boards", { replace: true });
     } catch (error) {
       const status = error?.response?.status;
-      const message=error?.response?.data?.message;
+      const message = error?.response?.data?.message;
       
-      if(message) setErrorMsg(message)
+      if (message) setErrorMsg(message)
       else if (status === 400 || status === 401) {
         setErrorMsg("Invalid email or password");
       } else if (status === 500) {
@@ -41,65 +35,56 @@ const Login = () => {
       setLoading(false);
     }
   };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0f1e] px-4 relative overflow-hidden">
-      {/* Background Gradient */}
-
-      {/* Ambient gradient blobs */}
-      <div className="absolute -top-40 -left-40 w-125 h-125 bg-cyan-500/10 rounded-full blur-3xl" />
-      <div className="absolute -bottom-40 -right-40 w-125 h-125 bg-violet-500/10 rounded-full blur-3xl" />
-
-      <div onClick={() => navigate("/")} className="absolute top-6 left-6 flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity z-50">
-        <div className="flex gap-1 items-end">
-            <div className="w-1.5 h-6 bg-[#00acee] rounded-full"></div>
-            <div className="w-1.5 h-4 bg-[#00acee] rounded-full"></div>
-            <div className="w-1.5 h-8 bg-[#00acee] rounded-full"></div>
-        </div>
-        <span className="text-white text-xl font-bold tracking-tight">TaskDeck</span>
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] px-4 relative overflow-hidden font-sans">
+      {/* Background Glow Effects */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-cyan-600/10 rounded-full blur-[120px]" />
+        <div className="absolute top-[20%] -right-[5%] w-[35%] h-[50%] bg-violet-600/10 rounded-full blur-[120px]" />
+        <div className="absolute -bottom-[10%] left-[15%] w-[50%] h-[40%] bg-blue-600/10 rounded-full blur-[120px]" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
       </div>
 
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-5%] left-[-5%] w-[30%] h-[30%] rounded-full bg-blue-900/20 blur-[100px]"></div>
+      {/* Top Gradient Line */}
+      <div className="fixed top-0 left-0 w-full h-1 bg-linear-to-r from-cyan-500/40 via-violet-500/40 to-blue-500/40 opacity-70 z-50" />
+
+      {/* Branding */}
+      <div 
+        onClick={() => navigate("/")} 
+        className="absolute top-8 left-8 flex items-center gap-3 group cursor-pointer z-50"
+      >
+        <div className="p-2 bg-linear-to-br from-cyan-400/20 to-blue-500/20 rounded-xl border border-cyan-400/20 group-hover:border-cyan-400/40 transition-all duration-300">
+          <Kanban className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" strokeWidth={2.5} />
+        </div>
+        <span className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-gray-400 tracking-tight">TaskDeck</span>
       </div>
 
       <div className="w-full max-w-md reveal-up z-10">
         <div
-          className={`bg-[#111827]/60 backdrop-blur-xl p-6 rounded-2xl border shadow-2xl transition-all
-        ${
-          errorMsg
-            ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.25)]"
-            : "border-gray-800"
-        }`}
+          className={`bg-[#0d121f]/80 backdrop-blur-3xl p-8 rounded-[2rem] border shadow-2xl transition-all duration-500
+          ${errorMsg ? "border-rose-500/30 shadow-[0_0_40px_-10px_rgba(244,63,94,0.2)] animate-shake" : "border-white/10 shadow-[0_0_60px_-15px_rgba(6,182,212,0.1)]"}`}
         >
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-white mb-1">Welcome Back</h2>
-            <p className="text-sm text-gray-400">Sign in to your account</p>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-black text-white mb-2 tracking-tight">Welcome Back</h2>
+            <p className="text-sm font-medium text-gray-500">Sign in to your account</p>
 
             {errorMsg && (
-              <div className="mt-3 text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 text-center animate-shake">
+              <div className="mt-4 text-xs font-bold uppercase tracking-widest text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-2.5 text-center">
                 {errorMsg}
               </div>
             )}
           </div>
 
-          <form onSubmit={onSubmitHandler} className="space-y-4">
-            {/* Email Field - Reduced height */}
+          <form onSubmit={onSubmitHandler} className="space-y-6">
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 ml-1">
+              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">
                 Email Address
               </label>
               <input
                 type="email"
-                name="email"
                 required
-                className={`w-full bg-[#0d121f] rounded-lg py-2 px-4 text-sm text-white placeholder-gray-600
-                  focus:outline-none transition-all
-                  ${
-                    errorMsg
-                      ? "border border-red-500/50 focus:ring-2 focus:ring-red-500/40"
-                      : "border border-gray-700 focus:ring-2 focus:ring-blue-500/40"
-                  }
-                `}
+                className="w-full bg-[#0a0a0f]/50 border border-white/10 rounded-xl py-3 px-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/20 transition-all shadow-inner"
                 placeholder="name@company.com"
                 onChange={(e) => {
                   setEmail(e.target.value)
@@ -108,69 +93,51 @@ const Login = () => {
               />
             </div>
 
-            {/* Password Field - Reduced height */}
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 ml-1">
+              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">
                 Password
               </label>
               <input
                 type="password"
-                name="password"
                 required
-                className={`w-full bg-[#0d121f] rounded-lg py-2 px-4 text-sm text-white placeholder-gray-600
-                  focus:outline-none transition-all
-                  ${
-                    errorMsg
-                      ? "border border-red-500/50 focus:ring-2 focus:ring-red-500/40"
-                      : "border border-gray-700 focus:ring-2 focus:ring-blue-500/40"
-                  }
-                `}
+                className="w-full bg-[#0a0a0f]/50 border border-white/10 rounded-xl py-3 px-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/20 transition-all shadow-inner"
                 placeholder="••••••••"
                 onChange={(e) => {
-                    setPassword(e.target.value)
-                    setErrorMsg("");
+                  setPassword(e.target.value)
+                  setErrorMsg("");
                 }}
               />
             </div>
 
-            {/* Primary Sign In Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full cursor-pointer mt-2 bg-linear-to-r from-[#00acee] to-[#0072ff]
-             hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed
-             text-white font-semibold py-2.5 rounded-lg
-             shadow-[0_0_15px_rgba(0,172,238,0.2)]
-             transition-all active:scale-[0.98] text-sm"
+              className="group relative w-full cursor-pointer mt-2 bg-linear-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold py-3.5 rounded-xl shadow-lg shadow-cyan-500/20 transition-all active:scale-[0.98] text-sm overflow-hidden disabled:opacity-50"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {loading ? "Authenticating..." : "Sign In"}
+                {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
+              </span>
             </button>
 
-            <div className="relative my-5">
+            <div className="relative py-4">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-800"></div>
+                <div className="w-full border-t border-white/5"></div>
               </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="px-2 bg-[#111827] text-gray-500 uppercase tracking-wider">
-                  Or
+              <div className="relative flex justify-center">
+                <span className="px-3 bg-[#0d121f] text-[10px] font-black text-gray-600 uppercase tracking-widest">
+                  Or continue with
                 </span>
               </div>
             </div>
 
-            {/* Google Button - Slimmer height */}
             <button
               onClick={() => {
-                window.location.href = //http://localhost:3000/auth/google
-                  import.meta.env.VITE_API_AUTH_URL + "/auth/google";
+                window.location.href = import.meta.env.VITE_API_AUTH_URL + "/auth/google";
               }}
-              // 1️⃣ Browser → Backend /auth/google
-              // 2️⃣ Backend → Google OAuth page
-              // 3️⃣ User logs in
-              // 4️⃣ Google → Backend callback
-              // 5️⃣ Backend sets cookie + redirects
-              // 6️⃣ Backend → http://localhost:5173/boards
               type="button"
-              className="w-full flex cursor-pointer items-center justify-center gap-2 bg-[#1f2937] hover:bg-[#2d3748] text-white font-medium py-2 rounded-lg border border-gray-700 transition-all text-sm"
+              className="w-full flex cursor-pointer items-center justify-center gap-3 bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl border border-white/10 transition-all text-sm"
             >
               <img
                 src="https://www.svgrepo.com/show/355037/google.svg"
@@ -181,13 +148,13 @@ const Login = () => {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-xs text-gray-500">
-            New here?{" "}
+          <p className="mt-8 text-center text-xs font-medium text-gray-500">
+            Don't have an account?{" "}
             <a
               onClick={() => navigate("/signup")}
-              className="text-blue-400 cursor-pointer hover:underline"
+              className="text-cyan-400 cursor-pointer font-bold hover:text-cyan-300 transition-colors"
             >
-              Create account
+              Create one for free
             </a>
           </p>
         </div>
@@ -195,4 +162,5 @@ const Login = () => {
     </div>
   );
 };
+
 export default Login;
