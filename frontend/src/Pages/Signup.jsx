@@ -15,7 +15,6 @@ const Signup = () => {
     e.preventDefault();
 
     if (!fullName || !email || !password) {
-      console.log("All fields are required");
       return;
     }
 
@@ -30,7 +29,7 @@ const Signup = () => {
 
       navigate("/login");
     } catch (error) {
-      console.log("Signup error:", error.response?.data?.message);
+      // Signup error
     } finally {
       setLoading(false);
     }

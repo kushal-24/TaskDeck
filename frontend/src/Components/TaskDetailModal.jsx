@@ -58,11 +58,8 @@ const TaskDetailModal = ({
         const resFiles = await getAllFilesApi(taskId);
         setFiles(resFiles.data.data);
 
-        console.log("members hai ye: ", members);
-        console.log("assignees hai ye: ", resTask.data.data.assignees);
-        console.log("these are all the files:", resFiles.data.data);
       } catch (err) {
-        console.error("Failed to fetch task or comments or files ", err);
+        // Failed to fetch task or comments or files
       } finally {
         setLoading(false);
       }
@@ -157,7 +154,7 @@ const TaskDetailModal = ({
       await onFetchFiles(taskData._id);
       setFile(null);
     } catch (err) {
-      console.error("File upload failed", err);
+      // File upload failed
     }
   };
   const handleDeleteFile = async (fileId) => {
@@ -165,7 +162,7 @@ const TaskDetailModal = ({
       await remove(fileId);
       setFiles((prev) => prev.filter((file) => file._id !== fileId));
     } catch (err) {
-      console.error("File delete failed", err);
+      // File delete failed
     }
   };
 

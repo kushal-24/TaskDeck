@@ -13,7 +13,7 @@ const ActivityLogWidget = () => {
         const res = await getRecentActivityLogsApi();
         setLogs(res.data.data || []);
       } catch (err) {
-        console.error("Failed to fetch activity logs", err);
+        // Failed to fetch activity logs
       } finally {
         setLoading(false);
       }

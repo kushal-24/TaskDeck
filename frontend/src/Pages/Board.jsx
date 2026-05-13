@@ -84,7 +84,7 @@ function Board() {
         );
         setTasksByList(taskMap);
       } catch (error) {
-        console.error("Error loading board page", error);
+        // Error loading board page
       } finally {
         setLoading(false);
         requestAnimationFrame(() => {
@@ -256,7 +256,6 @@ function Board() {
   const getAllFiles = async (taskId) => {
     const res = await getAllFilesApi(taskId);
     setFilesData(res.data.data);
-    console.log("files  hai saare", res.data.data);
   };
 
   const handleTaskClick = (task) => {
@@ -318,7 +317,7 @@ function Board() {
     try {
       await reorderTasksApi(sourceListId, orderedIds);
     } catch (err) {
-      console.error("Failed to reorder tasks", err);
+      // Failed to reorder tasks
     }
   };
   const onDragEndLists = async (event) => {
@@ -344,7 +343,7 @@ function Board() {
     try {
       await reorderListsApi(boardId, orderedIds);
     } catch (err) {
-      console.error("Failed to reorder lists", err);
+      // Failed to reorder lists
     }
   };
 

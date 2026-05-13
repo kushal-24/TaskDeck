@@ -13,7 +13,7 @@ const uploadResult = await cloudinary.uploader
         { public_id: 'shoes', }
     )
     .catch((error) => {
-        console.log(error);
+        // error
     });
 
 const uploadOnCloudinary = async (localFilePath) => {

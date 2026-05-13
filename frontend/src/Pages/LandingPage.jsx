@@ -97,7 +97,7 @@ function LandingPage() {
           <div className="relative max-w-6xl mx-auto reveal-up reveal-delay-2">
             <div className="absolute -inset-1 bg-linear-to-r from-cyan-500 via-blue-500 to-violet-500 rounded-[2.5rem] blur-2xl opacity-20 animate-pulse"></div>
             <div className="relative bg-[#0d121f]/80 backdrop-blur-3xl rounded-[2rem] shadow-2xl overflow-hidden border border-white/10">
-              <div className="bg-white/[0.03] px-8 py-5 border-b border-white/5 flex items-center justify-between">
+              <div className="bg-white/5 px-8 py-5 border-b border-white/5 flex items-center justify-between">
                 <div className="flex gap-2.5">
                   <div className="w-3.5 h-3.5 rounded-full bg-rose-500/50 shadow-[0_0_10px_rgba(244,63,94,0.3)]"></div>
                   <div className="w-3.5 h-3.5 rounded-full bg-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.3)]"></div>

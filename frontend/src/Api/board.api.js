@@ -17,7 +17,6 @@ export const updateBoardApi=(boardId, data)=>{
 };
 
 export const deleteBoardApi = (boardId) => {
-    console.log("API RECEIVED:", boardId, typeof boardId);
     return api.delete(`/board/${boardId}/deleteboard`);
   };
 

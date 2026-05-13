@@ -9,12 +9,11 @@ const port=process.env.PORT||3000;
 connectDB()
 .then(()=>{
     app.listen(port, ()=>{
-        console.log(`🚀 Server running at http://localhost:${port}`);
+        // Server running
     })
 })
 .catch((err)=>{
-    console.log(`connection to DB failed : error is :- ${err}`);
-    
+    // connection to DB failed
 })
 
 app.get('/',(req,res)=>{

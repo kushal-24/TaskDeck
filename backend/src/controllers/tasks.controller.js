@@ -471,8 +471,6 @@ const fileUpload=asyncHandler(async(req,res,next)=>{
 const fileDelete = asyncHandler(async (req, res) => {
     const { fileId } = req.params;
 
-    console.log("DELETE fileId:", fileId);
-
     if (!mongoose.Types.ObjectId.isValid(fileId)) {
       throw new apiError(400, "Invalid attachment ID");
     }

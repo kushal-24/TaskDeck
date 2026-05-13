@@ -32,7 +32,6 @@ const Boards = () => {
         try {
           setLoading(true)
           const resBoards = await getAllBoardsApi();
-          console.log(resBoards.data.data);
           setBoards(resBoards.data.data || []);
 
           const resUsers= await getAllUsers();

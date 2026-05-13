@@ -10,8 +10,6 @@ router.route("/board/:boardId/getlist").get(verifyJWT, getLists); //✅
 router.route("/list/:listId/updatelist").patch(verifyJWT, updateList);  //✅
 router.route("/list/:listId/deletelist").delete(verifyJWT, deleteList); //✅
 
-console.log("listRouter LOADED!");
-
 
 //reordering of the lists
 router.route("/board/:boardId/lists/reorder").post(verifyJWT,reorderList); 
