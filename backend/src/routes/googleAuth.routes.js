@@ -16,3 +16,6 @@ router.get(
     }),googleCallBack);
 
 export default router
+
+//1st time- tour guide
+//2nd tour- reciever

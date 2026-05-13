@@ -57,17 +57,10 @@ const updateList = asyncHandler(async (req, res) => {
         throw new apiError(400, "Title is required");
     }
 
-    //checking member hai ki nai 
-    const board= await Board.findById(list.boardId);
-    if(!board){
-        throw new apiError(400, "No such board exists!")
-    }
-
     const userId=req.user?._id;
 
-    const isMember= board.members.some((memberId)=>memberId.toString()===userId.toString());
-    if(!isMember){
-        throw new apiError(403,"this user is not a member of the board so not permitted to do this action");
+    if(list.createdBy.toString() !== userId.toString()){
+        throw new apiError(403,"Only the list owner can edit the list");
     }
 
     list.title= title;
@@ -86,16 +79,10 @@ const deleteList = asyncHandler(async (req, res) => {
         throw new apiError(400, "No such list exists!")
     }
 
-    const board= await Board.findById(list.boardId);
-    if(!board){
-        throw new apiError(400, "No such board exists!")
-    }
-
     const userId=req.user?._id;
 
-    const isMember= board.members.some((memberId)=>memberId.toString()===userId.toString());
-    if(!isMember){
-        throw new apiError(403,"this user is not a member of the board so not permitted to do this action");
+    if(list.createdBy.toString() !== userId.toString()){
+        throw new apiError(403,"Only the list owner can delete the list");
     }
 
     await List.findByIdAndDelete(listId);

@@ -4,6 +4,8 @@ dotenv.config();
 import { app } from './app.js';
 
 
+const port=process.env.PORT||3000;
+
 connectDB()
 .then(()=>{
     app.listen(port, ()=>{
@@ -18,6 +20,4 @@ connectDB()
 app.get('/',(req,res)=>{
     res.send('server is Live!');
 })
-
-const port=process.env.PORT||3000;
 

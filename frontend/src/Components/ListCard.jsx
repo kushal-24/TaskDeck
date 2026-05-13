@@ -8,7 +8,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-//map toh kardiya container ne...ab rendering and display listCard karega
+import { Trash2, Edit2, MoreVertical } from "lucide-react";
 
 const SortableTask = ({ task, children }) => {
   const {
@@ -33,10 +33,10 @@ const SortableTask = ({ task, children }) => {
       <div
         {...attributes}
         {...listeners}
-        onClick={(e) => e.stopPropagation()} // ⭐ IMPORTANT
-        className="cursor-grab text-gray-400 text-xs mb-1 select-none"
+        onClick={(e) => e.stopPropagation()}
+        className="cursor-grab text-gray-500 hover:text-gray-300 text-xs mb-1 select-none flex justify-center w-full"
       >
-        ⠿
+        <div className="w-8 h-1 rounded-full bg-gray-600/50" />
       </div>
       {/* Clickable content */}
       {children}
@@ -52,6 +52,7 @@ const ListCard = ({
   tasks,
   onAddTask,
   onEditList,
+  onDeleteList,
   onTaskClick,
   ownerId,
 }) => {
@@ -60,12 +61,12 @@ const ListCard = ({
   const [permissionError, setPermissionError] = useState(null);
   const { user } = useAuth();
 
-  const listOperationsAccess =
-    list.createdBy === user?._id || ownerId === user?._id;
+  const isListOwner = list.createdBy === user?._id;
+  const isBoardMemberOrOwner = true; // Board.jsx already restricts view to members/owners
 
   const startEdit = () => {
-    if (!listOperationsAccess) {
-      setPermissionError("Only list owners & board owners can edit list titles.");
+    if (!isListOwner) {
+      setPermissionError("Only the list owner can edit or delete this list.");
       return;
     }
     setEditable(true);
@@ -76,6 +77,12 @@ const ListCard = ({
       onEditList(list._id, title);
     }
     setEditable(false);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this list?")) {
+      onDeleteList(list._id);
+    }
   };
 
   return (
@@ -89,35 +96,55 @@ const ListCard = ({
       )}
 
       <div
-        className={` ${animate ? "reveal-up reveal-delay-${Math.min(index, 4)}" : " opacity-0 translate-y-6 "}
-        bg-white/5 p-4 shrink-0 w-80 h-150
-        bg-linear-to-br from-gray-800/40 to-gray-900/40
-        backdrop-blur-md rounded-xl border border-gray-700/50
-        shadow-2xl overflow-hidden`}
+        className={` ${animate ? "reveal-up" : " opacity-0 translate-y-6 "}
+        flex flex-col shrink-0 w-[320px] max-h-[75vh]
+        bg-[#0a0e1a]/80 backdrop-blur-2xl rounded-2xl border border-white/10
+        shadow-2xl shadow-cyan-500/5 overflow-hidden transition-all duration-300`}
       >
-        {/* List Title */}
-        <div className="p-3 min-h-15 border-b border-gray-700/50 bg-black/20">
+        {/* Glow Effects */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-cyan-500/50 to-blue-500/50 opacity-50" />
+        
+        {/* List Title Header */}
+        <div className="p-4 border-b border-white/5 flex items-center justify-between group relative bg-white/[0.02]">
           {editable ? (
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onBlur={saveEdit}
               onKeyDown={(e) => e.key === "Enter" && saveEdit()}
-              className="w-full rounded px-2 py-1 font-semibold text-white outline-none"
+              className="w-full rounded-lg px-3 py-1.5 font-semibold text-white bg-white/10 border border-cyan-500/50 outline-none focus:ring-1 focus:ring-cyan-500/50"
               autoFocus
             />
           ) : (
             <h2
               onClick={startEdit}
-              className="text-lg font-semibold text-white cursor-pointer"
+              className="text-base font-bold text-gray-200 cursor-pointer hover:text-white transition-colors truncate pr-2 flex-1"
             >
               {list.title}
             </h2>
           )}
+
+          {/* List Actions */}
+          {isListOwner && !editable && (
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button 
+                onClick={startEdit}
+                className="p-1.5 rounded-md hover:bg-white/10 text-gray-400 hover:text-cyan-400 transition-colors"
+              >
+                <Edit2 size={14} />
+              </button>
+              <button 
+                onClick={handleDelete}
+                className="p-1.5 rounded-md hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Tasks */}
-        <div className="p-4 overflow-y-auto flex-1 space-y-3">
+        {/* Tasks Container */}
+        <div className="p-3 overflow-y-auto flex-1 space-y-3 custom-scrollbar">
           <SortableContext
             items={tasks.map((task) => task._id)}
             strategy={verticalListSortingStrategy}
@@ -127,35 +154,43 @@ const ListCard = ({
                 <SortableTask key={task._id} task={task}>
                   <div
                     onClick={() => onTaskClick(task._id)}
-                    className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4
-                    border border-gray-700/30 hover:border-cyan-500/50
-                    transition-all cursor-pointer"
+                    className="bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-xl p-3.5
+                    border border-white/5 hover:border-cyan-500/30
+                    shadow-sm hover:shadow-cyan-500/10
+                    transition-all duration-200 cursor-pointer group"
                   >
-                    <p className="text-gray-200 text-sm">{task.title}</p>
-                    <div className="mt-2 text-gray-200 text-xs">
-                      Task details
+                    <p className="text-gray-200 text-sm font-medium leading-snug group-hover:text-white transition-colors">
+                      {task.title}
+                    </p>
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-xs font-medium px-2 py-1 rounded-md bg-white/5 text-gray-400">
+                        Details
+                      </span>
                     </div>
                   </div>
                 </SortableTask>
               ))
             ) : (
-              <p className="text-xs text-gray-400">
-                No tasks! Create your first one
-              </p>
+              <div className="text-center py-6 px-4 border border-dashed border-white/10 rounded-xl bg-white/5">
+                <p className="text-xs font-medium text-gray-500">
+                  No tasks yet
+                </p>
+              </div>
             )}
           </SortableContext>
-
-          {/* Create Task */}
-          {listOperationsAccess && (
-            <div
-              onClick={onAddTask}
-              className="mt-3 text-sm text-white cursor-pointer
-              hover:text-cyan-500 transition-all duration-300"
-            >
-              + Add a task
-            </div>
-          )}
         </div>
+
+        {/* Create Task Footer */}
+        {isBoardMemberOrOwner && (
+          <div className="p-3 border-t border-white/5 bg-white/[0.02]">
+            <button
+              onClick={onAddTask}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all duration-300"
+            >
+              <span className="text-lg leading-none">+</span> Add Task
+            </button>
+          </div>
+        )}
       </div>
     </>
   );

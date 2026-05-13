@@ -8,7 +8,7 @@ const privateRoute=({children})=>{
         return null;
     }
     if(!isAuthenticated){
-        return <Navigate to="/login" replace/> //“Replace the current URL in history instead of adding a new one.”
+        return <Navigate to="/" replace/> //“Replace the current URL in history instead of adding a new one.”
     }
 
     return children;

@@ -49,7 +49,7 @@ const Login = () => {
       <div className="absolute -top-40 -left-40 w-125 h-125 bg-cyan-500/10 rounded-full blur-3xl" />
       <div className="absolute -bottom-40 -right-40 w-125 h-125 bg-violet-500/10 rounded-full blur-3xl" />
 
-      <div className="absolute  top-6 left-6 flex items-center gap-2">
+      <div onClick={() => navigate("/")} className="absolute top-6 left-6 flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity z-50">
         <div className="flex gap-1 items-end">
             <div className="w-1.5 h-6 bg-[#00acee] rounded-full"></div>
             <div className="w-1.5 h-4 bg-[#00acee] rounded-full"></div>

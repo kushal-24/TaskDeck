@@ -23,13 +23,25 @@ app.use(cookieParser());
 
 import boardRouter from './routes/board.router.js';
 import userRouter from './routes/user.router.js';
-import listRouter from './routes/list.router.js'
-import taskRouter from './routes/task.router.js'
+import listRouter from './routes/list.router.js';
+import taskRouter from './routes/task.router.js';
+import activityRouter from './routes/activity.router.js';
 
 
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/board', boardRouter);
 app.use('/api/v1',listRouter);
 app.use('/api/v1',taskRouter);
+app.use('/api/v1/activity', activityRouter);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    res.status(statusCode).json({
+        success: false,
+        message: err.message || "Internal Server Error",
+        errors: err.errors || []
+    });
+});
 
 export {app}

@@ -11,12 +11,12 @@ passport.use(
         },
         async(accessToken, refreshToken, profile, done)=>{
             try {
-                const email = profile.emails[0].value;
+                const email = profile.emails[0].value;//grabs the primary email from the google account
                 
                 let user= await User.findOne({email})
                 if(!user){
                     user=await User.create({
-                        fullName: profile.displayName,
+                        fullName: profile.displayName,//grabs the display name from the google account
                         email,
                         authProvider: "google",
                         googleId: profile.id

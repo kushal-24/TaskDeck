@@ -28,3 +28,6 @@ export const getAllUsers=()=>{
   return api.get("/user/getallusers");
 }
 
+export const deleteAccountApi = () => {
+  return api.delete("/user/deleteaccount");
+};

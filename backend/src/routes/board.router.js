@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { createBoard, deleteBoard, getAllBoards, getBoard, updateBoard } from "../controllers/board.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import listRouter from './list.router.js'
 import { addMember, getBoardMembers, removeMember } from "../controllers/boardMembers.controller.js";
 
 const router = Router()

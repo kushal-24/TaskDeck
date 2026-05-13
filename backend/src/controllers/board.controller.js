@@ -94,14 +94,21 @@ const updateBoard = asyncHandler(async (req, res) => {
 const deleteBoard = asyncHandler(async (req, res) => {
     const { boardId } = req.params;
 
-    const board = await Board.findByIdAndDelete(boardId);
+    const board = await Board.findById(boardId);
 
     if (!board) {
         throw new apiError(404, "No board found with the given title");
     }
 
+    const userId = req.user?._id;
+    if (userId.toString() !== board.ownerId.toString()) {
+        throw new apiError(403, "You do not have permission to delete this board. Only the board owner can delete it.");
+    }
+
+    await Board.findByIdAndDelete(boardId);
+
     return res.status(200).json(
-        new apiResponse(board, 200, "Board deleted successfully")
+        new apiResponse({}, 200, "Board deleted successfully")
     );
 });
 

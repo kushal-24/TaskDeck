@@ -92,14 +92,6 @@ function ListContainer({
                     }
                   />
                 )}
-
-                {canDeleteList && (
-                  <button
-                    onClick={() => onDeleteList(list._id)}
-                    className="mt-4 w-full rounded-lg cursor-pointer bg-red-600 hover:bg-red-500 py-2 text-sm text-white">
-                    Delete List
-                  </button>
-                )}
               </SortableList>
             );
           })}

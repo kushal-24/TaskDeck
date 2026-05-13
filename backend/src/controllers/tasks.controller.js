@@ -95,9 +95,10 @@ const updateTask = asyncHandler(async (req, res) => {
     }
 
     const userId=req.user?._id;
-    const isMember= board.members.some((memberId)=>memberId.toString()===userId.toString());
-    if(!isMember){
-        throw new apiError(403,"this user is not a member of the board so cant do any actions");
+    const isAssignee = task.assignees.some(id => id.toString() === userId.toString());
+    const isTaskOwner = task.createdBy.toString() === userId.toString();
+    if(!isAssignee && !isTaskOwner){
+        throw new apiError(403,"Only a task assignee or owner can edit the task");
     }
 
     const updated = await Task.findByIdAndUpdate(
@@ -119,23 +120,9 @@ const deleteTask = asyncHandler(async (req, res) => {
         throw new apiError(404, "Task not found");
     }
 
-    const list = await List.findById(task.listId);
-    if (!list) {
-        throw new apiError(404, "List not found");
-    }
-
-    const board = await Board.findById(list.boardId);
-    if (!board) {
-        throw new apiError(404, "Board not found");
-    }
-
-    //Board membership check
     const userId = req.user._id;
-    const isMember = board.members.some(
-        memberId => memberId.toString() === userId.toString()
-    );
-    if (!isMember) {
-        throw new apiError(403, "You are not a member of this board");
+    if (task.createdBy.toString() !== userId.toString()) {
+        throw new apiError(403, "Only the task owner can delete the task");
     }
 
     await Task.findByIdAndDelete(taskId);
