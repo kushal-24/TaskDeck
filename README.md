@@ -136,6 +136,10 @@ The app will be available at `http://localhost:5173`.
 - [ ] Drag-and-drop task reordering
 - [ ] Activity log / audit trail
 - [ ] Task due dates and reminders
+- [ ] Member addition removal permissions
+- [ ] Comment - review system for tasks
+- [ ] Multi - levelRBAC
+
 
 <!-- Trim or expand to reflect what you actually plan to build -->
 
