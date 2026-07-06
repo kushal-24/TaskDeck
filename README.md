@@ -119,13 +119,13 @@ The app will be available at `http://localhost:5173`.
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/boards` | List boards the user can access |
-| `POST` | `/api/boards` | Create a new board |
-| `GET` | `/api/boards/:id/lists` | Get lists within a board |
-| `POST` | `/api/lists` | Create a list |
-| `POST` | `/api/tasks` | Create a task |
-| `PATCH` | `/api/tasks/:id` | Update a task |
-| `DELETE` | `/api/tasks/:id` | Delete a task |
+| `GET` | `/api/v1/board/getallboards` | List boards the user can access |
+| `POST` | `/api/v1/board/createboard` | Create a new board |
+| `GET` | `/api/v1/board/:boardId/getlist` | Get lists within a board |
+| `POST` | `/api/v1/board/:boardId/createlists` | Create a list |
+| `POST` | `/api/v1/list/:listId/createtask` | Create a task |
+| `PATCH` | `/api/v1/task/:taskId/updatetask` | Update a task |
+| `DELETE` | `/api/v1/task/:taskId/deletetask` | Delete a task |
 
 <!-- Adjust these to match your actual routes -->
 
